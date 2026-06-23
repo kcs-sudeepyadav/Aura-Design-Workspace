@@ -1,0 +1,185 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+  engineType = "library"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id        String     @id @default(uuid())
+  email     String     @unique
+  password  String
+  role      String     // 'admin', 'manager', 'client'
+  name      String
+  avatar    String?
+
+  projectsManaged Project[] @relation("ManagerProjects")
+  projectsOwned   Project[] @relation("ClientProjects")
+  
+  documentsUploaded Document[]
+  notifications   Notification[]
+  messagesSent    Message[]
+  invoices        Invoice[]
+  quotes          Quote[]
+}
+
+model Project {
+  id          String   @id @default(uuid())
+  name        String
+  phase       String
+  health      String   // 'green', 'amber', 'red'
+  budget      String
+  completion  Int
+  startDate   String
+  endDate     String
+
+  managerId   String?
+  manager     User?    @relation("ManagerProjects", fields: [managerId], references: [id])
+  
+  clientId    String?
+  client      User?    @relation("ClientProjects", fields: [clientId], references: [id])
+
+  documents   Document[]
+  tasks       Task[]
+  issues      Issue[]
+  siteLogs    SiteLog[]
+  approvals   Approval[]
+  conversations Conversation[]
+  invoices      Invoice[]
+  quotes        Quote[]
+}
+
+model Document {
+  id          String   @id @default(uuid())
+  name        String
+  type        String
+  date        String
+  size        String
+  url         String?  // The local file path or S3 url
+
+  projectId   String?
+  project     Project? @relation(fields: [projectId], references: [id])
+  
+  uploadedById String?
+  uploadedBy   User?    @relation(fields: [uploadedById], references: [id])
+}
+
+model Task {
+  id          String   @id @default(uuid())
+  label       String
+  done        Boolean  @default(false)
+  assignee    String
+  due         String
+  
+  projectId   String?
+  project     Project? @relation(fields: [projectId], references: [id])
+}
+
+model Issue {
+  id          String   @id @default(uuid())
+  title       String
+  priority    String   // 'high', 'medium', 'low'
+  status      String   // 'open', 'in-progress', 'resolved'
+  date        String
+  assignee    String
+
+  projectId   String?
+  project     Project? @relation(fields: [projectId], references: [id])
+}
+
+model SiteLog {
+  id          String   @id @default(uuid())
+  date        String
+  title       String
+  summary     String
+  crew        Int
+  progress    Int
+  photos      String   // Storing JSON string array for now in sqlite
+  
+  projectId   String?
+  project     Project? @relation(fields: [projectId], references: [id])
+}
+
+model Approval {
+  id          String   @id @default(uuid())
+  title       String
+  type        String
+  due         String
+  description String
+  status      String   // 'pending', 'approved', 'declined'
+  imageUrl    String?
+
+  projectId   String?
+  project     Project? @relation(fields: [projectId], references: [id])
+}
+
+model Conversation {
+  id            String    @id @default(uuid())
+  projectId     String?
+  project       Project?  @relation(fields: [projectId], references: [id])
+  type          String    // 'GROUP', '1-ON-1'
+  title         String?
+  participants  String    // JSON array of user IDs
+  lastActivity  String
+  messages      Message[]
+}
+
+model Message {
+  id             String       @id @default(uuid())
+  content        String
+  timestamp      String
+  senderId       String
+  sender         User         @relation(fields: [senderId], references: [id])
+  conversationId String
+  conversation   Conversation @relation(fields: [conversationId], references: [id])
+  readBy         String       // JSON array of read statuses
+  attachments    String?      // JSON array of attachments
+  isDeleted      Boolean      @default(false)
+}
+
+model Notification {
+  id          String   @id @default(uuid())
+  userId      String
+  user        User     @relation(fields: [userId], references: [id])
+  title       String
+  message     String
+  read        Boolean  @default(false)
+  createdAt   DateTime @default(now())
+}
+
+model Invoice {
+  id                    String   @id @default(uuid())
+  ref                   String
+  amount                String
+  date                  String
+  status                String   // 'paid', 'pending', 'overdue'
+  
+  // Relations
+  projectId             String?
+  project               Project? @relation(fields: [projectId], references: [id])
+  clientId              String?
+  client                User?    @relation(fields: [clientId], references: [id])
+
+  // Stripe Integration
+  stripeSessionId       String?  @unique
+  stripePaymentIntentId String?  @unique
+}
+
+model Quote {
+  id          String   @id @default(uuid())
+  title       String
+  amount      String
+  status      String   // 'draft', 'sent', 'accepted', 'rejected'
+  createdAt   DateTime @default(now())
+  
+  projectId   String?
+  project     Project? @relation(fields: [projectId], references: [id])
+  clientId    String?
+  client      User?    @relation(fields: [clientId], references: [id])
+}

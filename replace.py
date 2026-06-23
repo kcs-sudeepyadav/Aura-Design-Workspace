@@ -1,0 +1,198 @@
+﻿import sys
+
+with open('d:/wamp64/www/velour/velour/src/components/generated/HubPages.tsx', 'r', encoding='utf-8') as f:
+    content = f.read()
+
+start_marker = "      {/* "?"? SITE LOGS "?"? */}\n      {activeTab === 'logs' && <div className=\"space-y-4\">\n"
+# We need to find the exact end of the activeTab === 'logs' block.
+# We can search for {/* "?"? TASKS "?"? */} and replace everything between start_marker and TASKS.
+
+start_idx = content.find("{/* \u25aa\ufe0f\u25aa\ufe0f SITE LOGS \u25aa\ufe0f\u25aa\ufe0f */}")
+end_idx = content.find("{/* \u25aa\ufe0f\u25aa\ufe0f TASKS \u25aa\ufe0f\u25aa\ufe0f */}")
+
+if start_idx == -1 or end_idx == -1:
+    print("Markers not found!")
+    # fallback to searching without emojis
+    start_idx = content.find("      {activeTab === 'logs' && <div className=\"space-y-4\">")
+    end_idx = content.find("      {activeTab === 'tasks'")
+    if start_idx == -1 or end_idx == -1:
+        print("Fallback markers not found either!")
+        sys.exit(1)
+    else:
+        # adjust end_idx back to the comment
+        end_idx = content.rfind("      {/*", 0, end_idx)
+
+replacement = """      {/* 🔹 SITE TRACKING & UPDATES 🔹 */}
+      {activeTab === 'logs' && <div className="space-y-4">
+          
+          <div className="flex gap-3 mb-6">
+            <button onClick={() => setNewClientUpdateOpen(!newClientUpdateOpen)} className="bg-[#f59e0b] text-[#020617] px-5 py-2.5 text-xs font-semibold flex items-center gap-2 hover:bg-[#fbbf24] transition-colors shadow-sm" style={{ fontFamily: 'Inter, sans-serif' }}>
+              <PlusCircle size={14} /><span>Post Client Update</span>
+            </button>
+            <button onClick={() => setNewLogOpen(!newLogOpen)} className="bg-white/5 border border-white/10 text-white/70 px-5 py-2.5 text-xs font-semibold flex items-center gap-2 hover:bg-white/10 transition-colors" style={{ fontFamily: 'Inter, sans-serif' }}>
+              <FileText size={14} /><span>New Internal Log</span>
+            </button>
+          </div>
+
+          {newClientUpdateOpen && <div className="bg-[#0f172a] border border-[#f59e0b]/50 shadow-[0_0_15px_rgba(245,158,11,0.1)] p-6 mb-6">
+              <h3 className="text-[#f59e0b] font-semibold mb-4 text-sm" style={{ fontFamily: 'Inter, sans-serif' }}>Post New Client Update</h3>
+              <p className="text-white/40 text-xs mb-6" style={{ fontFamily: 'Inter, sans-serif' }}>This update will be visible immediately to the client in their portal.</p>
+              
+              <div className="grid sm:grid-cols-2 gap-4 mb-4">
+                <div>
+                  <label className="text-[10px] text-white/40 tracking-[0.1em] uppercase block mb-2" style={{ fontFamily: 'Inter, sans-serif' }}>Title</label>
+                  <input value={clientUpdateForm.title} onChange={e => setClientUpdateForm(p => ({ ...p, title: e.target.value }))} placeholder="e.g. Master Bedroom Flooring Complete" className="w-full bg-[#020617] border border-slate-800 text-white px-4 py-2.5 text-sm focus:outline-none focus:border-[#f59e0b]/50 placeholder:text-white/20" style={{ fontFamily: 'Inter, sans-serif' }} />
+                </div>
+                <div>
+                  <label className="text-[10px] text-white/40 tracking-[0.1em] uppercase block mb-2" style={{ fontFamily: 'Inter, sans-serif' }}>Phase</label>
+                  <input value={clientUpdateForm.phase} onChange={e => setClientUpdateForm(p => ({ ...p, phase: e.target.value }))} placeholder="e.g. Execution Phase 1" className="w-full bg-[#020617] border border-slate-800 text-white px-4 py-2.5 text-sm focus:outline-none focus:border-[#f59e0b]/50 placeholder:text-white/20" style={{ fontFamily: 'Inter, sans-serif' }} />
+                </div>
+              </div>
+              
+              <div className="mb-4">
+                <label className="text-[10px] text-white/40 tracking-[0.1em] uppercase block mb-2" style={{ fontFamily: 'Inter, sans-serif' }}>Description</label>
+                <textarea value={clientUpdateForm.description} onChange={e => setClientUpdateForm(p => ({ ...p, description: e.target.value }))} rows={4} placeholder="Describe the progress for the client in rich detail..." className="w-full bg-[#020617] border border-slate-800 text-white px-4 py-2.5 text-sm focus:outline-none focus:border-[#f59e0b]/50 resize-none placeholder:text-white/20" style={{ fontFamily: 'Inter, sans-serif' }} />
+              </div>
+
+              <div className="mb-6">
+                <label className="text-[10px] text-white/40 tracking-[0.1em] uppercase block mb-2" style={{ fontFamily: 'Inter, sans-serif' }}>Photos</label>
+                <div className="border border-dashed border-white/20 bg-[#020617] p-6 text-center hover:border-[#f59e0b]/50 transition-colors cursor-pointer group" onClick={() => {
+                  setClientUpdateForm(p => ({ ...p, photos: [...p.photos, 'https://images.unsplash.com/photo-1503387762-592deb58ef4e?w=600&q=80'] }));
+                }}>
+                  <Image size={24} className="text-white/20 mx-auto mb-2 group-hover:text-[#f59e0b] transition-colors" />
+                  <p className="text-white/40 text-xs" style={{ fontFamily: 'Inter, sans-serif' }}>Click to upload progress photos</p>
+                </div>
+                {clientUpdateForm.photos.length > 0 && (
+                  <div className="flex gap-3 mt-3 overflow-x-auto pb-2">
+                    {clientUpdateForm.photos.map((url, i) => (
+                      <div key={i} className="relative w-20 h-20 shrink-0 group">
+                        <img src={url} alt="Progress" className="w-full h-full object-cover" />
+                        <button onClick={() => setClientUpdateForm(p => ({ ...p, photos: p.photos.filter((_, idx) => idx != i) }))} className="absolute top-1 right-1 bg-red-500/80 text-white p-1 rounded opacity-0 group-hover:opacity-100 transition-opacity">
+                          <X size={10} />
+                        </button>
+                      </div>
+                    ))}
+                  </div>
+                )}
+              </div>
+
+              <div className="flex gap-3 border-t border-amber-500/10 pt-4">
+                <button onClick={submitClientUpdate} className="bg-[#f59e0b] text-[#020617] px-6 py-2.5 text-xs font-semibold hover:bg-[#fbbf24] transition-colors shadow-sm" style={{ fontFamily: 'Inter, sans-serif' }}>Post Update to Client Feed</button>
+                <button onClick={() => setNewClientUpdateOpen(false)} className="px-6 py-2.5 text-xs border border-amber-500/10 text-white/40 hover:text-white/70 transition-colors" style={{ fontFamily: 'Inter, sans-serif' }}>Cancel</button>
+              </div>
+          </div>}
+
+          {newLogOpen && <div className="bg-[#0f172a] border border-[#f59e0b]/30 p-5 mb-6">
+              <h3 className="text-white font-semibold mb-4 text-sm" style={{ fontFamily: 'Inter, sans-serif' }}>New Internal Site Log</h3>
+              <div className="grid sm:grid-cols-2 gap-4 mb-4">
+                <div>
+                  <label className="text-[10px] text-white/40 tracking-[0.1em] uppercase block mb-2" style={{ fontFamily: 'Inter, sans-serif' }}>Title</label>
+                  <input value={logForm.title} onChange={e => setLogForm(p => ({ ...p, title: e.target.value }))} placeholder="e.g. Flooring - Day 13" className="w-full bg-[#020617] border border-slate-800 text-white px-4 py-2.5 text-sm focus:outline-none focus:border-[#f59e0b]/50 placeholder:text-white/20" style={{ fontFamily: 'Inter, sans-serif' }} />
+                </div>
+                <div>
+                  <label className="text-[10px] text-white/40 tracking-[0.1em] uppercase block mb-2" style={{ fontFamily: 'Inter, sans-serif' }}>Project</label>
+                  <select value={logForm.projectId} onChange={e => setLogForm(p => ({ ...p, projectId: e.target.value }))} className="w-full bg-[#020617] border border-slate-800 text-white px-4 py-2.5 text-sm focus:outline-none focus:border-[#f59e0b]/50" style={{ fontFamily: 'Inter, sans-serif' }}>
+                    <option value="">Select Project</option>
+                    {assignedProjects.map(proj => <option key={proj.id} value={proj.id}>{proj.name}</option>)}
+                  </select>
+                </div>
+              </div>
+              <div className="grid sm:grid-cols-2 gap-4 mb-4">
+                <div className="grid grid-cols-2 gap-3">
+                  <div>
+                    <label className="text-[10px] text-white/40 tracking-[0.1em] uppercase block mb-2" style={{ fontFamily: 'Inter, sans-serif' }}>Crew Size</label>
+                    <input type="number" value={logForm.crew} onChange={e => setLogForm(p => ({ ...p, crew: e.target.value }))} placeholder="0" className="w-full bg-[#020617] border border-slate-800 text-white px-4 py-2.5 text-sm focus:outline-none focus:border-[#f59e0b]/50 placeholder:text-white/20" style={{ fontFamily: 'Inter, sans-serif' }} />
+                  </div>
+                  <div>
+                    <label className="text-[10px] text-white/40 tracking-[0.1em] uppercase block mb-2" style={{ fontFamily: 'Inter, sans-serif' }}>Progress %</label>
+                    <input type="number" min="0" max="100" value={logForm.progress} onChange={e => setLogForm(p => ({ ...p, progress: e.target.value }))} placeholder="0" className="w-full bg-[#020617] border border-slate-800 text-white px-4 py-2.5 text-sm focus:outline-none focus:border-[#f59e0b]/50 placeholder:text-white/20" style={{ fontFamily: 'Inter, sans-serif' }} />
+                  </div>
+                </div>
+              </div>
+              <div className="mb-4">
+                <label className="text-[10px] text-white/40 tracking-[0.1em] uppercase block mb-2" style={{ fontFamily: 'Inter, sans-serif' }}>Summary</label>
+                <textarea value={logForm.summary} onChange={e => setLogForm(p => ({ ...p, summary: e.target.value }))} rows={3} placeholder="Describe today's internal site activity..." className="w-full bg-[#020617] border border-slate-800 text-white px-4 py-2.5 text-sm focus:outline-none focus:border-[#f59e0b]/50 resize-none placeholder:text-white/20" style={{ fontFamily: 'Inter, sans-serif' }} />
+              </div>
+              <div className="flex gap-3">
+                <button onClick={submitLog} className="bg-white/10 text-white px-6 py-2.5 text-xs font-semibold hover:bg-white/20 transition-colors shadow-sm" style={{ fontFamily: 'Inter, sans-serif' }}>Save Internal Log</button>
+                <button onClick={() => setNewLogOpen(false)} className="px-6 py-2.5 text-xs border border-white/10 text-white/40 hover:text-white/70 transition-colors" style={{ fontFamily: 'Inter, sans-serif' }}>Cancel</button>
+              </div>
+          </div>}
+
+          <div className="grid lg:grid-cols-2 gap-6">
+            {/* Client Updates Feed */}
+            <div className="bg-[#0f172a] border border-amber-500/10 p-5">
+              <h2 className="text-[#f59e0b] font-semibold mb-5 text-sm tracking-wide" style={{ fontFamily: 'Inter, sans-serif' }}>Recent Client Updates</h2>
+              <div className="space-y-4 max-h-[600px] overflow-y-auto pr-2 custom-scrollbar">
+                {siteUpdates?.map((upd: any) => (
+                  <div key={upd.id} className="bg-[#020617] border border-amber-500/10 p-4">
+                    <div className="flex gap-4">
+                      {upd.photos && upd.photos.length > 0 ? (
+                        <img src={upd.photos[0]} alt={upd.title} className="w-16 h-16 object-cover shrink-0 opacity-80" />
+                      ) : (
+                        <div className="w-16 h-16 bg-white/5 flex items-center justify-center shrink-0">
+                          <Camera size={16} className="text-white/20" />
+                        </div>
+                      )}
+                      <div>
+                        <p className="text-white/40 text-[10px] tracking-wider mb-1" style={{ fontFamily: 'Inter, sans-serif' }}>{upd.date} • {upd.phase}</p>
+                        <p className="text-white text-sm font-medium mb-1.5" style={{ fontFamily: 'Inter, sans-serif' }}>{upd.title}</p>
+                        <p className="text-white/50 text-xs line-clamp-2" style={{ fontFamily: 'Inter, sans-serif' }}>{upd.description}</p>
+                      </div>
+                    </div>
+                  </div>
+                ))}
+                {(!siteUpdates || siteUpdates.length === 0) && (
+                  <p className="text-white/30 text-xs italic">No client updates posted yet.</p>
+                )}
+              </div>
+            </div>
+
+            {/* Internal Logs Feed */}
+            <div className="bg-[#0f172a] border border-slate-800 p-5">
+              <h2 className="text-white/70 font-semibold mb-5 text-sm tracking-wide" style={{ fontFamily: 'Inter, sans-serif' }}>Internal Site Logs</h2>
+              <div className="space-y-4 max-h-[600px] overflow-y-auto pr-2 custom-scrollbar">
+                {siteLogs?.map((log: any) => {
+                  let parsedPhotos = [];
+                  try { parsedPhotos = typeof log.photos === 'string' ? JSON.parse(log.photos || '[]') : log.photos || []; } catch(e) {}
+                  return (
+                    <div key={log.id} className="bg-[#020617] border border-slate-800 p-4">
+                      <div className="flex justify-between items-start flex-wrap gap-2 mb-2">
+                        <div>
+                          <p className="text-white/40 text-[10px] uppercase tracking-[0.12em] mb-1" style={{ fontFamily: 'Inter, sans-serif' }}>
+                            {log.date}
+                            {log.projectId && <span className="ml-2 px-1.5 py-0.5 bg-white/5 border border-white/10 rounded text-white/50 tracking-normal capitalize">{assignedProjects.find(p => p.id === log.projectId)?.name || 'Unknown Project'}</span>}
+                          </p>
+                          <p className="text-white font-medium text-sm" style={{ fontFamily: 'Inter, sans-serif' }}>{log.title}</p>
+                        </div>
+                        <div className="flex items-center gap-3 text-white/30 text-xs">
+                          <span style={{ fontFamily: 'Inter, sans-serif' }}><strong className="text-white/50">{log.crew}</strong> crew</span>
+                          <span className="text-white/70 font-semibold">{log.progress}%</span>
+                        </div>
+                      </div>
+                      <p className="text-white/50 text-xs leading-relaxed mb-3" style={{ fontFamily: 'Inter, sans-serif' }}>{log.summary}</p>
+                      {parsedPhotos && parsedPhotos.length > 0 && (
+                        <div className="flex gap-2 mb-2">
+                          {parsedPhotos.map((photo: string, idx: number) => <img key={log-photo-} src={photo} alt={Log photo } className="w-12 h-12 object-cover opacity-70" />)}
+                        </div>
+                      )}
+                      {log.progress > 0 && (
+                        <div className="h-1 bg-white/5 rounded-full overflow-hidden mt-2">
+                          <div className="h-full bg-slate-500 rounded-full" style={{ width: ${log.progress}% }} />
+                        </div>
+                      )}
+                    </div>
+                  );
+                })}
+              </div>
+            </div>
+          </div>
+        </div>}
+\n"""
+
+new_content = content[:start_idx] + replacement + content[end_idx:]
+
+with open('d:/wamp64/www/velour/velour/src/components/generated/HubPages.tsx', 'w', encoding='utf-8') as f:
+    f.write(new_content)
+
+print("Replacement successful")
