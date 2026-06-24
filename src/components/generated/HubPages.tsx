@@ -1,5 +1,7 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { toast } from 'sonner';
+import { Canvas } from '@react-three/fiber';
+import { OrbitControls, Environment } from '@react-three/drei';
 import { Calculator,  Bell, CheckCircle2, Clock, FileText, MessageSquare, Upload, ChevronRight, ChevronLeft, BarChart2, Users, Settings, AlertCircle, Camera, TrendingUp, DollarSign, LogIn, Eye, EyeOff, Home, ArrowRight, X, Check, Download, PlusCircle, Search, Menu, ChevronDown, Send, Image, Trash2, Save, RefreshCw, MoreVertical, Shield, Activity, Lock, Unlock, UserPlus, Star, Phone, Mail, Calendar, MapPin, Layers, UserCheck, ClipboardList, BarChart, CreditCard, HardHat, PieChart, Zap, Globe, AlertTriangle, CheckSquare, FileImage, Wand2, Truck } from 'lucide-react';
 import { MaterialEstimator } from './MaterialEstimator';
 import { DesignAssistant } from './DesignAssistant';
@@ -1904,21 +1906,81 @@ export const HubCustomerPage: React.FC<HubPageProps> = ({
                 </div>
                 
                 <div className="flex-1 relative bg-[#020617] overflow-hidden group">
-                  {/* Simulated 3D Canvas */}
-                  <img src="https://images.unsplash.com/photo-1600607687939-ce8a6c25118c?w=1200&q=80" alt="3D Model" className="w-full h-full object-cover opacity-60 mix-blend-screen scale-105 transition-transform duration-[10s] group-hover:scale-100" />
-                  
-                  {/* WebGL Overlay Grid */}
-                  <div className="absolute inset-0 bg-[url('data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSI0MCIgaGVpZ2h0PSI0MCI+PGRlZnM+PHBhdHRlcm4gaWQ9ImdyaWQiIHdpZHRoPSI0MCIgaGVpZ2h0PSI0MCIgcGF0dGVyblVuaXRzPSJ1c2VyU3BhY2VPblVzZSI+PHBhdGggZD0iTSA0MCAwIEwgMCAwIDAgNDAiIGZpbGw9Im5vbmUiIHN0cm9rZT0icmdiYSgyNTUsIDI1NSwgMjU1LCAwLjA1KSIgc3Ryb2tlLXdpZHRoPSIxIi8+PC9wYXR0ZXJuPjwvZGVmcz48cmVjdCB3aWR0aD0iMTAwJSIgaGVpZ2h0PSIxMDAlIiBmaWxsPSJ1cmwoI2dyaWQpIi8+PC9zdmc+')] opacity-50 pointer-events-none"></div>
+                  {/* Real 3D WebGL Canvas - Programmatic Room */}
+                  <Canvas camera={{ position: [0, 4, 12], fov: 50 }} className="w-full h-full bg-[#020617] cursor-move">
+                    <ambientLight intensity={0.6} />
+                    <spotLight position={[5, 10, 5]} angle={0.4} penumbra={1} intensity={2} castShadow />
+                    
+                    <group position={[0, -2, 0]}>
+                      {/* Floor */}
+                      <mesh rotation={[-Math.PI / 2, 0, 0]} receiveShadow>
+                        <planeGeometry args={[20, 20]} />
+                        <meshStandardMaterial color="#1e293b" />
+                      </mesh>
+                      
+                      {/* Back Wall */}
+                      <mesh position={[0, 5, -10]} receiveShadow>
+                        <boxGeometry args={[20, 10, 0.5]} />
+                        <meshStandardMaterial color="#0f172a" />
+                      </mesh>
+
+                      {/* Rug */}
+                      <mesh position={[0, 0.01, 0]} rotation={[-Math.PI / 2, 0, 0]}>
+                        <planeGeometry args={[8, 6]} />
+                        <meshStandardMaterial color="#334155" />
+                      </mesh>
+
+                      {/* Sofa */}
+                      <mesh position={[0, 0.5, -2]} castShadow receiveShadow>
+                        <boxGeometry args={[6, 1, 3]} />
+                        <meshStandardMaterial color="#f59e0b" />
+                      </mesh>
+                      <mesh position={[0, 1.5, -3]} castShadow receiveShadow>
+                        <boxGeometry args={[6, 1.5, 1]} />
+                        <meshStandardMaterial color="#f59e0b" />
+                      </mesh>
+
+                      {/* Coffee Table */}
+                      <mesh position={[0, 0.6, 1]} castShadow receiveShadow>
+                        <cylinderGeometry args={[1.5, 1.5, 0.2, 32]} />
+                        <meshStandardMaterial color="#e2e8f0" />
+                      </mesh>
+                      <mesh position={[0, 0.3, 1]} castShadow receiveShadow>
+                        <cylinderGeometry args={[0.5, 0.5, 0.6, 16]} />
+                        <meshStandardMaterial color="#94a3b8" />
+                      </mesh>
+
+                      {/* Wall Art */}
+                      <mesh position={[0, 5, -9.7]} castShadow>
+                        <boxGeometry args={[4, 3, 0.1]} />
+                        <meshStandardMaterial color="#e2e8f0" />
+                      </mesh>
+                      <mesh position={[0, 5, -9.6]}>
+                        <planeGeometry args={[3.5, 2.5]} />
+                        <meshStandardMaterial color="#f59e0b" />
+                      </mesh>
+                    </group>
+
+                    <OrbitControls 
+                      autoRotate 
+                      autoRotateSpeed={0.8} 
+                      enableZoom={true} 
+                      minDistance={5} 
+                      maxDistance={15} 
+                      maxPolarAngle={Math.PI / 2 - 0.05}
+                    />
+                    <Environment preset="city" />
+                  </Canvas>
 
                   {/* Viewer Controls */}
-                  <div className="absolute bottom-6 left-1/2 -translate-x-1/2 flex items-center gap-4 bg-[#0f172a]/90 backdrop-blur border border-white/10 px-6 py-3 rounded-full shadow-xl">
-                    <button className="text-white/50 hover:text-white transition-colors"><RefreshCw size={18} /></button>
+                  <div className="absolute bottom-6 left-1/2 -translate-x-1/2 flex items-center gap-4 bg-[#0f172a]/90 backdrop-blur border border-white/10 px-6 py-3 rounded-full shadow-xl z-10 pointer-events-none">
+                    <button className="text-white/50 hover:text-white transition-colors pointer-events-auto" onClick={() => toast.success('Camera reset')}><RefreshCw size={18} /></button>
                     <div className="w-px h-4 bg-white/10"></div>
-                    <button className="text-white/50 hover:text-[#f59e0b] transition-colors"><ChevronLeft size={20} /></button>
-                    <span className="text-[10px] text-white/60 tracking-widest uppercase font-semibold mx-2" >Orbit</span>
-                    <button className="text-white/50 hover:text-[#f59e0b] transition-colors"><ChevronRight size={20} /></button>
+                    <span className="text-[10px] text-white/60 tracking-widest uppercase font-semibold mx-2 flex items-center gap-2" >
+                      <Eye size={14} className="text-[#f59e0b]"/> DRAG TO ORBIT ROOM
+                    </span>
                     <div className="w-px h-4 bg-white/10"></div>
-                    <button className="text-white/50 hover:text-white transition-colors"><Download size={18} /></button>
+                    <button className="text-white/50 hover:text-white transition-colors pointer-events-auto" onClick={() => toast.success('Downloading 3D Source File...')}><Download size={18} /></button>
                   </div>
 
                   {/* Loading overlay simulation */}

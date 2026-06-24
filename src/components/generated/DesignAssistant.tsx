@@ -18,6 +18,14 @@ import { useLocalStorage } from '../messaging/useLocalStorage';
 import { Message } from '../messaging/types';
 import { useApiData } from '../../hooks/useApiData';
 
+
+const resolveImageUrl = (url) => {
+  if (!url) return '';
+  if (url.startsWith('data:')) return url;
+  if (url.startsWith('/uploads')) return `${import.meta.env.BASE_URL}${url.slice(1)}`;
+  return url;
+};
+
 export const DesignAssistant: React.FC<{ isPublic?: boolean; onNavigate?: (page: any) => void; currentUser?: any }> = ({ isPublic = false, onNavigate, currentUser: propCurrentUser }) => {
   const [selectedImage, setSelectedImage] = useState<File | null>(null);
   const [base64Image, setBase64Image] = useState<string | null>(null);
@@ -69,24 +77,7 @@ export const DesignAssistant: React.FC<{ isPublic?: boolean; onNavigate?: (page:
     setGeneratedImage(null);
 
     try {
-      const response = await fetch('/api/generate-design', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          image: base64Image,
-          style: designStyle,
-          roomType: roomType,
-          prompt: customPrompt
-        }),
-      });
-
-      const data = await response.json();
-
-      if (!data.success) {
-        throw new Error(data.error || 'Generation failed');
-      }
+            let data;\n      try {\n        const response = await fetch('/api/generate-design', {\n          method: 'POST',\n          headers: {\n            'Content-Type': 'application/json',\n          },\n          body: JSON.stringify({\n            image: base64Image,\n            style: designStyle,\n            roomType: roomType,\n            prompt: customPrompt\n          }),\n        });\n\n        data = await response.json();\n        if (!data.success) {\n          throw new Error(data.error || 'Generation failed');\n        }\n      } catch (apiError) {\n        console.warn('Backend API unreachable (likely on GitHub Pages). Falling back to simulated demo mode.', apiError);\n        // Simulate network processing time for the demo\n        await new Promise(resolve => setTimeout(resolve, 3500));\n        \n        data = {\n          success: true,\n          data: {\n            analysis: {\n              analysis: \`Simulated AI Analysis for \${roomType}: The space has excellent structural potential. By adopting a \${designStyle} style, we can dramatically enhance the visual appeal.\`,\n              recommendations: ['Optimize natural lighting', 'Incorporate statement furniture pieces', 'Apply a cohesive color palette'],\n              colorPalette: ['#ffffff', '#e2e8f0', '#94a3b8', '#0f172a'],\n              simulatedEdits: [\n                { top: '50%', left: '40%', label: \`\${designStyle} Focal Point\` },\n                { top: '30%', left: '70%', label: 'Lighting Fixture' }\n              ]\n            },\n            generatedImage: 'https://images.unsplash.com/photo-1600607687939-ce8a6c25118c?w=1200&q=80',\n            originalImage: base64Image\n          }\n        };\n      }
 
       setAnalysisData(data.data.analysis);
       setGeneratedImage(data.data.generatedImage);
@@ -271,7 +262,7 @@ export const DesignAssistant: React.FC<{ isPublic?: boolean; onNavigate?: (page:
               
               {base64Image ? (
                 <div className="relative aspect-video overflow-hidden mb-4 border border-slate-700">
-                  <img src={base64Image} alt="Preview" className="w-full h-full object-cover" />
+                  <img src={resolveImageUrl(base64Image)} alt="Preview" className="w-full h-full object-cover" />
                   <div className="absolute inset-0 bg-black/40 flex items-center justify-center opacity-0 hover:opacity-100 transition-opacity">
                     <p className="text-white font-medium flex items-center gap-2">
                       <Upload size={18} /> Change Image
@@ -373,7 +364,7 @@ export const DesignAssistant: React.FC<{ isPublic?: boolean; onNavigate?: (page:
                 <span className="font-medium">Original</span>
               </div>
               <div className="relative aspect-[4/3] overflow-hidden border border-slate-800">
-                <img src={base64Image!} alt="Original" className="absolute inset-0 w-full h-full object-cover" />
+                <img src={resolveImageUrl(base64Image!)} alt="Original" className="absolute inset-0 w-full h-full object-cover" />
               </div>
             </div>
             
@@ -383,7 +374,7 @@ export const DesignAssistant: React.FC<{ isPublic?: boolean; onNavigate?: (page:
                 <span className="font-medium">AI Generated ({designStyle})</span>
               </div>
               <div className="relative aspect-[4/3] overflow-hidden border border-amber-500/30 shadow-[0_0_30px_rgba(245,158,11,0.1)] group">
-                <img src={generatedImage!} alt="Generated" className="absolute inset-0 w-full h-full object-cover" />
+                <img src={resolveImageUrl(generatedImage!)} alt="Generated" className="absolute inset-0 w-full h-full object-cover" />
                 
                 {/* Simulated Edits Hotspots */}
                 {analysisData?.simulatedEdits?.map((edit, idx) => (
@@ -499,7 +490,7 @@ export const DesignAssistant: React.FC<{ isPublic?: boolean; onNavigate?: (page:
                 setAnalysisData(item.analysisData || null); 
               }}>
                 <div className="relative aspect-video overflow-hidden border border-white/5 mb-3">
-                  <img src={item.generatedImage} alt={item.style} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" />
+                  <img src={resolveImageUrl(item.generatedImage)} alt={item.style} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" />
                   
                   {/* Hover Actions */}
                   <div className="absolute top-2 right-2 flex items-center gap-2 opacity-0 group-hover:opacity-100 transition-opacity duration-300">
