@@ -113,7 +113,7 @@ export const DesignAssistant: React.FC<{ isPublic?: boolean; onNavigate?: (page:
                 { top: '30%', left: '70%', label: 'Lighting Fixture' }
               ]
             },
-            generatedImage: 'https://images.unsplash.com/photo-1600607687939-ce8a6c25118c?w=1200&q=80',
+            generatedImage: base64Image,
             originalImage: base64Image
           }
         };
