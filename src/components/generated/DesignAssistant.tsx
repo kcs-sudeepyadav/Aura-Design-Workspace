@@ -77,7 +77,47 @@ export const DesignAssistant: React.FC<{ isPublic?: boolean; onNavigate?: (page:
     setGeneratedImage(null);
 
     try {
-            let data;\n      try {\n        const response = await fetch('/api/generate-design', {\n          method: 'POST',\n          headers: {\n            'Content-Type': 'application/json',\n          },\n          body: JSON.stringify({\n            image: base64Image,\n            style: designStyle,\n            roomType: roomType,\n            prompt: customPrompt\n          }),\n        });\n\n        data = await response.json();\n        if (!data.success) {\n          throw new Error(data.error || 'Generation failed');\n        }\n      } catch (apiError) {\n        console.warn('Backend API unreachable (likely on GitHub Pages). Falling back to simulated demo mode.', apiError);\n        // Simulate network processing time for the demo\n        await new Promise(resolve => setTimeout(resolve, 3500));\n        \n        data = {\n          success: true,\n          data: {\n            analysis: {\n              analysis: \`Simulated AI Analysis for \${roomType}: The space has excellent structural potential. By adopting a \${designStyle} style, we can dramatically enhance the visual appeal.\`,\n              recommendations: ['Optimize natural lighting', 'Incorporate statement furniture pieces', 'Apply a cohesive color palette'],\n              colorPalette: ['#ffffff', '#e2e8f0', '#94a3b8', '#0f172a'],\n              simulatedEdits: [\n                { top: '50%', left: '40%', label: \`\${designStyle} Focal Point\` },\n                { top: '30%', left: '70%', label: 'Lighting Fixture' }\n              ]\n            },\n            generatedImage: 'https://images.unsplash.com/photo-1600607687939-ce8a6c25118c?w=1200&q=80',\n            originalImage: base64Image\n          }\n        };\n      }
+      let data;
+      try {
+        const response = await fetch('/api/generate-design', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({
+            image: base64Image,
+            style: designStyle,
+            roomType: roomType,
+            prompt: customPrompt
+          }),
+        });
+
+        data = await response.json();
+        if (!data.success) {
+          throw new Error(data.error || 'Generation failed');
+        }
+      } catch (apiError) {
+        console.warn('Backend API unreachable (likely on GitHub Pages). Falling back to simulated demo mode.', apiError);
+        // Simulate network processing time for the demo
+        await new Promise(resolve => setTimeout(resolve, 3500));
+        
+        data = {
+          success: true,
+          data: {
+            analysis: {
+              analysis: `Simulated AI Analysis for ${roomType}: The space has excellent structural potential. By adopting a ${designStyle} style, we can dramatically enhance the visual appeal.`,
+              recommendations: ['Optimize natural lighting', 'Incorporate statement furniture pieces', 'Apply a cohesive color palette'],
+              colorPalette: ['#ffffff', '#e2e8f0', '#94a3b8', '#0f172a'],
+              simulatedEdits: [
+                { top: '50%', left: '40%', label: `${designStyle} Focal Point` },
+                { top: '30%', left: '70%', label: 'Lighting Fixture' }
+              ]
+            },
+            generatedImage: 'https://images.unsplash.com/photo-1600607687939-ce8a6c25118c?w=1200&q=80',
+            originalImage: base64Image
+          }
+        };
+      }
 
       setAnalysisData(data.data.analysis);
       setGeneratedImage(data.data.generatedImage);
