@@ -420,7 +420,7 @@ export const DesignAssistant: React.FC<{ isPublic?: boolean; onNavigate?: (page:
                 {analysisData?.simulatedEdits?.map((edit, idx) => (
                   <div 
                     key={idx} 
-                    className="absolute w-6 h-6 -translate-x-1/2 -translate-y-1/2 bg-amber-500 rounded-full flex items-center justify-center cursor-pointer hover:scale-110 transition-transform shadow-lg shadow-black/50 group/spot"
+                    className="absolute w-6 h-6 -translate-x-1/2 -translate-y-1/2 bg-amber-500 rounded-full flex items-center justify-center cursor-pointer hover:scale-110 transition-transform shadow-lg shadow-black/50 group/spot z-20 hover:z-50"
                     style={{ top: edit.top, left: edit.left }}
                   >
                     <div className="w-2 h-2 bg-slate-900 rounded-full animate-pulse" />
