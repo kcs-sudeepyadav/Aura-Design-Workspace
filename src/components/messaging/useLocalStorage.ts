@@ -12,16 +12,18 @@ export function useLocalStorage<T>(key: string, initialValue: T) {
   });
 
   const setValue = (value: T | ((val: T) => T)) => {
-    try {
-      setStoredValue((prev) => {
+    setStoredValue((prev) => {
+      try {
         const valueToStore = value instanceof Function ? value(prev) : value;
         window.localStorage.setItem(key, JSON.stringify(valueToStore));
         window.dispatchEvent(new Event('local-storage-sync'));
         return valueToStore;
-      });
-    } catch (error) {
-      console.error(error);
-    }
+      } catch (error) {
+        console.error("Storage error (e.g. QuotaExceededError):", error);
+        // If localStorage fails (e.g. quota exceeded), just update state in memory
+        return value instanceof Function ? value(prev) : value;
+      }
+    });
   };
 
   useEffect(() => {
