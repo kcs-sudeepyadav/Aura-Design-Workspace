@@ -3029,16 +3029,20 @@ export const HubManagerPage: React.FC<HubPageProps> = ({
                       </div>
                       <div className="flex items-center gap-3">
                         <div className="w-20 h-1 bg-white/5 rounded-full overflow-hidden">
-                          <div className="h-full bg-[#f59e0b] rounded-full" style={{
-                    width: '100%'
-                  }} />
+                          <div className="h-full bg-[#f59e0b] rounded-full transition-all duration-300" style={{
+                            width: isUploading ? `${uploadProgress}%` : '0%'
+                          }} />
                         </div>
-                        <button onClick={() => setUploadedFiles(prev => prev.filter((_, idx) => idx !== i))} className="text-white/20 hover:text-red-400 transition-colors"><X size={13} /></button>
+                        {!isUploading && (
+                          <button onClick={() => setUploadedFiles(prev => prev.filter((_, idx) => idx !== i))} className="text-white/20 hover:text-red-400 transition-colors"><X size={13} /></button>
+                        )}
                       </div>
                     </div>)}
                 </div>
-                <button onClick={handleUploadSubmit} disabled={!selectedUploadProject} className={`mt-4 px-7 py-2.5 text-xs font-semibold flex items-center gap-2 shadow-sm transition-colors ${!selectedUploadProject ? 'bg-red-900/20 text-red-400 border border-red-800/30 cursor-not-allowed' : 'bg-[#f59e0b] text-[#020617] hover:bg-[#fbbf24]'}`} >
-                  {selectedUploadProject ? (
+                <button onClick={handleUploadSubmit} disabled={!selectedUploadProject || isUploading} className={`mt-4 px-7 py-2.5 text-xs font-semibold flex items-center gap-2 shadow-sm transition-colors ${(!selectedUploadProject || isUploading) ? 'bg-red-900/20 text-red-400 border border-red-800/30 cursor-not-allowed' : 'bg-[#f59e0b] text-[#020617] hover:bg-[#fbbf24]'}`} >
+                  {isUploading ? (
+                    <><RefreshCw size={13} className="animate-spin" /><span>Uploading... {uploadProgress}%</span></>
+                  ) : selectedUploadProject ? (
                     <><Upload size={13} /><span>Upload {uploadedFiles.length} File{uploadedFiles.length > 1 ? 's' : ''} to Client Portal</span></>
                   ) : (
                     <><AlertCircle size={13} /><span>Select a Project First</span></>
