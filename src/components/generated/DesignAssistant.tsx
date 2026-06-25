@@ -101,16 +101,35 @@ export const DesignAssistant: React.FC<{ isPublic?: boolean; onNavigate?: (page:
         // Simulate network processing time for the demo
         await new Promise(resolve => setTimeout(resolve, 3500));
         
+        const stylePalettes: Record<string, string[]> = {
+          'Modern': ['#1a1a1a', '#f5f5f5', '#8c8c8c', '#d4af37'],
+          'Minimalist': ['#ffffff', '#e0e0e0', '#b3b3b3', '#000000'],
+          'Industrial': ['#2c3e50', '#7f8c8d', '#e67e22', '#34495e'],
+          'Bohemian': ['#8b4513', '#cd853f', '#556b2f', '#f4a460'],
+          'Scandinavian': ['#fffaf0', '#dcdcdc', '#add8e6', '#a9a9a9']
+        };
+
+        const roomRecommendations: Record<string, string[]> = {
+          'Living Room': ['Add a plush area rug', 'Install ambient cove lighting', 'Reorient seating towards the window'],
+          'Bedroom': ['Introduce blackout curtains', 'Add a textured headboard', 'Use warm bedside lighting'],
+          'Kitchen': ['Upgrade cabinet hardware', 'Install a statement backsplash', 'Add pendant lights over the island'],
+          'Bathroom': ['Use large format tiles', 'Add a backlit mirror', 'Incorporate natural wood accents']
+        };
+
+        // Generate pseudo-random coordinates based on style length to make them dynamic
+        const baseOffset = designStyle.length * 2 + roomType.length;
+
         data = {
           success: true,
           data: {
             analysis: {
-              analysis: `Simulated AI Analysis for ${roomType}: The space has excellent structural potential. By adopting a ${designStyle} style, we can dramatically enhance the visual appeal.`,
-              recommendations: ['Optimize natural lighting', 'Incorporate statement furniture pieces', 'Apply a cohesive color palette'],
-              colorPalette: ['#ffffff', '#e2e8f0', '#94a3b8', '#0f172a'],
+              analysis: `The ${roomType} shows great potential. By applying a ${designStyle} aesthetic, we can maximize spatial flow and introduce a refined atmosphere.`,
+              recommendations: roomRecommendations[roomType] || ['Optimize spatial flow', 'Enhance lighting', 'Update textures'],
+              colorPalette: stylePalettes[designStyle] || ['#ffffff', '#cccccc', '#999999', '#333333'],
               simulatedEdits: [
-                { top: '50%', left: '40%', label: `${designStyle} Focal Point` },
-                { top: '30%', left: '70%', label: 'Lighting Fixture' }
+                { top: `${35 + (baseOffset % 25)}%`, left: `${25 + (baseOffset % 35)}%`, label: `${designStyle} Feature Element` },
+                { top: `${15 + (baseOffset % 20)}%`, left: `${55 + (baseOffset % 30)}%`, label: `Updated ${roomType} Lighting` },
+                { top: `${65 + (baseOffset % 15)}%`, left: `${45 + (baseOffset % 25)}%`, label: 'Optimized Layout' }
               ]
             },
             generatedImage: base64Image,
