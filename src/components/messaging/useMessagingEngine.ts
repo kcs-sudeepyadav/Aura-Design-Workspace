@@ -206,7 +206,15 @@ export const useMessagingEngine = (currentUser: User | null) => {
 
   const deleteMessage = useCallback(async (messageId: string) => {
     // Optimistic update
-    setMessages(prev => prev.map(m => m.id === messageId ? { ...m, isDeleted: true } : m));
+    setMessages(prev => {
+      const newMessages = prev.map(m => m.id === messageId ? { ...m, isDeleted: true } : m);
+      // Persist to mock storage to prevent reappearing on reload during local testing
+      if (localStorage.getItem('aura_mock_messages')) {
+        localStorage.setItem('aura_mock_messages', JSON.stringify(newMessages));
+      }
+      return newMessages;
+    });
+
     try {
       await fetch(`${API_BASE}/messages/${messageId}`, {
         method: 'DELETE',

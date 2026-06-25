@@ -73,13 +73,13 @@ export const MessageBubble: React.FC<MessageBubbleProps> = ({ message, isMine, s
                         return (
                         <div 
                           key={idx} 
-                          className="absolute w-5 h-5 -translate-x-1/2 -translate-y-1/2 bg-amber-500 rounded-full flex items-center justify-center cursor-help hover:scale-110 transition-transform shadow-lg shadow-black/50 group/spot z-20"
+                          className="absolute w-5 h-5 -translate-x-1/2 -translate-y-1/2 bg-amber-500 rounded-full flex items-center justify-center cursor-help hover:scale-110 transition-transform shadow-lg shadow-black/50 group/spot z-20 hover:z-50"
                           style={{ top, left }}
                         >
                           <div className="w-1.5 h-1.5 bg-slate-900 rounded-full animate-pulse" />
                           
                           {/* Tooltip */}
-                          <div className="absolute opacity-0 group-hover/spot:opacity-100 bottom-full mb-1.5 left-1/2 -translate-x-1/2 bg-slate-900 text-white text-[10px] px-2 py-1 rounded whitespace-nowrap pointer-events-none transition-opacity border border-white/10 z-30 shadow-xl">
+                          <div className="absolute opacity-0 group-hover/spot:opacity-100 bottom-full mb-1.5 left-1/2 -translate-x-1/2 bg-slate-900 text-white text-[10px] px-2 py-1 rounded w-max max-w-[120px] text-center leading-tight pointer-events-none transition-opacity border border-white/10 z-30 shadow-xl">
                             {edit.label || 'Design Edit'}
                             <div className="absolute top-full left-1/2 -translate-x-1/2 border-[3px] border-transparent border-t-slate-900" />
                           </div>
