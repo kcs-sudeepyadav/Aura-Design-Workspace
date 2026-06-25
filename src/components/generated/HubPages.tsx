@@ -1870,7 +1870,7 @@ export const HubCustomerPage: React.FC<HubPageProps> = ({
                   </div>
                 </div>
                 <div className="flex items-center gap-2">
-                  {(doc.name.includes('3D') || doc.type === '3D' || doc.type === 'ZIP' || doc.type === 'GLB') && (
+                  {(doc.name.includes('3D') || ['3D', 'GLB', 'GLTF', 'USDZ', 'FBX', 'OBJ', 'DAE', 'STL', '3MF', 'STEP', 'STP', 'IGES'].includes(doc.type) || doc.type === 'ZIP') && (
                     <button onClick={() => setSelected3DDoc(doc)} className="text-white/25 hover:text-[#f59e0b] transition-colors opacity-0 group-hover:opacity-100 px-2 py-1 flex items-center gap-1 bg-[#f59e0b]/10 rounded border border-[#f59e0b]/20">
                       <Eye size={13} /><span className="text-[10px] uppercase font-semibold text-[#f59e0b]" >View 3D</span>
                     </button>
@@ -2160,7 +2160,7 @@ export const HubManagerPage: React.FC<HubPageProps> = ({
     projectId: '',
     imageUrl: ''
   });
-  const [uploadedFiles, setUploadedFiles] = useState<string[]>([]);
+  const [uploadedFiles, setUploadedFiles] = useState<File[]>([]);
   const { data: documents, setData: setDocuments } = useApiData('documents');
   const { data: projects, setData: setProjects } = useApiData('projects');
   const [selectedUploadProject, setSelectedUploadProject] = useState<string>('');
@@ -2282,23 +2282,39 @@ export const HubManagerPage: React.FC<HubPageProps> = ({
   } : i));
   const handleFileSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
     const files = Array.from(e.target.files ?? []);
-    setUploadedFiles(prev => [...prev, ...files.map(f => f.name)]);
+    setUploadedFiles(prev => [...prev, ...files]);
   };
   
-  const handleUploadSubmit = () => {
+  const handleUploadSubmit = async () => {
     if (!selectedUploadProject || uploadedFiles.length === 0) return;
-    const newDocs: Document[] = uploadedFiles.map(name => ({
-      id: `doc-${Date.now()}-${Math.random().toString(36).substr(2, 5)}`,
-      name: name,
-      type: name.split('.').pop()?.toUpperCase() || 'FILE',
-      date: new Date().toLocaleDateString('en-US', { month: 'short', day: 'numeric' }),
-      size: `${(Math.random() * 5 + 0.1).toFixed(1)} MB`,
-      projectId: selectedUploadProject,
-      uploadedBy: currentUserId
-    }));
-    setDocuments(prev => [...prev, ...newDocs]);
-    setUploadedFiles([]);
-    setSelectedUploadProject('');
+    try {
+      const formData = new FormData();
+      uploadedFiles.forEach(file => {
+        formData.append('files', file);
+      });
+      const response = await fetch('/api/upload', {
+        method: 'POST',
+        body: formData,
+      });
+      if (!response.ok) throw new Error('Upload failed');
+      const data = await response.json();
+      const newDocs: Document[] = data.files.map((fileObj: any) => ({
+        id: `doc-${Date.now()}-${Math.random().toString(36).substr(2, 5)}`,
+        name: fileObj.name,
+        type: fileObj.type,
+        date: new Date().toLocaleDateString('en-US', { month: 'short', day: 'numeric' }),
+        size: fileObj.size,
+        projectId: selectedUploadProject,
+        uploadedBy: currentUserId,
+        url: fileObj.url
+      }));
+      setDocuments(prev => [...prev, ...newDocs]);
+      setUploadedFiles([]);
+      setSelectedUploadProject('');
+    } catch (error) {
+      console.error('Error uploading files:', error);
+      alert('Failed to upload files. Please try again.');
+    }
   };
   const priorityColors: Record<string, string> = {
     high: 'bg-red-900/30 text-red-400 border-red-800/30',
@@ -2892,10 +2908,10 @@ export const HubManagerPage: React.FC<HubPageProps> = ({
             {uploadedFiles.length > 0 && <div className="mt-5">
                 <h3 className="text-white/50 text-xs tracking-[0.1em] uppercase mb-3" >Queued for Upload ({uploadedFiles.length})</h3>
                 <div className="space-y-2">
-                  {uploadedFiles.map((name, i) => <div key={`uploaded-${i}`} className="flex items-center justify-between p-3 bg-[#020617] border border-amber-500/10">
+                  {uploadedFiles.map((file, i) => <div key={`uploaded-${i}`} className="flex items-center justify-between p-3 bg-[#020617] border border-amber-500/10">
                       <div className="flex items-center gap-3">
                         <Image size={14} className="text-[#f59e0b]" />
-                        <p className="text-white text-sm" >{name}</p>
+                        <p className="text-white text-sm" >{file.name}</p>
                       </div>
                       <div className="flex items-center gap-3">
                         <div className="w-20 h-1 bg-white/5 rounded-full overflow-hidden">

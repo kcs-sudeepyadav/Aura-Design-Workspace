@@ -118,6 +118,36 @@ app.use(express.json({ limit: '50mb' }));
 app.use(express.urlencoded({ limit: '50mb', extended: true }));
 app.use('/uploads', express.static(path.join(process.cwd(), 'public', 'uploads')));
 
+// ---- UPLOAD CONFIG ----
+const storage = multer.diskStorage({
+  destination: function (req, file, cb) {
+    const dir = path.join(process.cwd(), 'public', 'uploads');
+    if (!fs.existsSync(dir)) fs.mkdirSync(dir, { recursive: true });
+    cb(null, dir);
+  },
+  filename: function (req, file, cb) {
+    cb(null, Date.now() + '-' + file.originalname.replace(/[^a-zA-Z0-9.-]/g, '_'));
+  }
+});
+const upload = multer({ storage: storage });
+
+app.post('/api/upload', upload.array('files'), (req, res) => {
+  try {
+    if (!req.files || req.files.length === 0) {
+      return res.status(400).json({ error: 'No files uploaded' });
+    }
+    const uploadedDocs = req.files.map(file => ({
+      name: file.originalname,
+      url: `/uploads/${file.filename}`,
+      size: (file.size / (1024 * 1024)).toFixed(2) + ' MB',
+      type: file.originalname.split('.').pop()?.toUpperCase() || 'FILE'
+    }));
+    res.json({ success: true, files: uploadedDocs });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
 // ---- AUTH ROUTES ----
 app.post('/api/auth/register', async (req, res) => {
   try {
