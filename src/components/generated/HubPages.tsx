@@ -1870,7 +1870,7 @@ export const HubCustomerPage: React.FC<HubPageProps> = ({
                   </div>
                 </div>
                 <div className="flex items-center gap-2">
-                  {(doc.name.includes('3D') || doc.type === '3D' || doc.type === 'ZIP') && (
+                  {(doc.name.includes('3D') || doc.type === '3D' || doc.type === 'ZIP' || doc.type === 'GLB') && (
                     <button onClick={() => setSelected3DDoc(doc)} className="text-white/25 hover:text-[#f59e0b] transition-colors opacity-0 group-hover:opacity-100 px-2 py-1 flex items-center gap-1 bg-[#f59e0b]/10 rounded border border-[#f59e0b]/20">
                       <Eye size={13} /><span className="text-[10px] uppercase font-semibold text-[#f59e0b]" >View 3D</span>
                     </button>
@@ -1903,9 +1903,17 @@ export const HubCustomerPage: React.FC<HubPageProps> = ({
                   </button>
                 </div>
                 
-                <div className="flex-1 relative bg-[#020617] overflow-hidden group">
-                  {/* Simulated 3D Canvas */}
-                  <img src="https://images.unsplash.com/photo-1600607687939-ce8a6c25118c?w=1200&q=80" alt="3D Model" className="w-full h-full object-cover opacity-60 mix-blend-screen scale-105 transition-transform duration-[10s] group-hover:scale-100" />
+                <div className="flex-1 relative bg-[#020617] overflow-hidden group flex items-center justify-center">
+                  {/* Real 3D Model Viewer */}
+                  {/* @ts-ignore */}
+                  <model-viewer 
+                    src={selected3DDoc.url || 'https://modelviewer.dev/shared-assets/models/Astronaut.glb'}
+                    alt={selected3DDoc.name}
+                    auto-rotate
+                    camera-controls
+                    shadow-intensity="1"
+                    style={{ width: '100%', height: '100%' }}
+                  ></model-viewer>
                   
                   {/* WebGL Overlay Grid */}
                   <div className="absolute inset-0 bg-[url('data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSI0MCIgaGVpZ2h0PSI0MCI+PGRlZnM+PHBhdHRlcm4gaWQ9ImdyaWQiIHdpZHRoPSI0MCIgaGVpZ2h0PSI0MCIgcGF0dGVyblVuaXRzPSJ1c2VyU3BhY2VPblVzZSI+PHBhdGggZD0iTSA0MCAwIEwgMCAwIDAgNDAiIGZpbGw9Im5vbmUiIHN0cm9rZT0icmdiYSgyNTUsIDI1NSwgMjU1LCAwLjA1KSIgc3Ryb2tlLXdpZHRoPSIxIi8+PC9wYXR0ZXJuPjwvZGVmcz48cmVjdCB3aWR0aD0iMTAwJSIgaGVpZ2h0PSIxMDAlIiBmaWxsPSJ1cmwoI2dyaWQpIi8+PC9zdmc+')] opacity-50 pointer-events-none"></div>

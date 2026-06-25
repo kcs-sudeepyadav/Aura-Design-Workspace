@@ -178,11 +178,11 @@ export function useApiData(resource: string) {
           id: 'iss-2', title: 'Delay in Italian marble shipment from supplier', priority: 'medium', status: 'in-progress', date: 'May 8', assignee: 'Suresh M.'
         }];
       } else if (resource === 'documents') {
-        initialMockData = [{
-          id: 'd-1', name: 'Master Bedroom Elevation.pdf', type: 'DWG', date: 'May 10, 2026', size: '4.2 MB', projectId: 'p-1'
-        }, {
-          id: 'd-2', name: 'Lighting Schedule Rev 2.xlsx', type: 'XLS', date: 'May 9, 2026', size: '1.1 MB', projectId: 'p-2'
-        }];
+        initialMockData = [
+          { id: 'd-1', name: 'Master Bedroom Elevation.pdf', type: 'DWG', date: 'May 10, 2026', size: '4.2 MB', projectId: 'p-1' },
+          { id: 'd-2', name: 'Lighting Schedule Rev 2.xlsx', type: 'XLS', date: 'May 8, 2026', size: '1.1 MB', projectId: 'p-1' },
+          { id: 'd-3', name: 'Living Room 3D Render.glb', type: '3D', date: 'May 12, 2026', size: '12.5 MB', projectId: 'p-1', url: 'https://modelviewer.dev/shared-assets/models/Astronaut.glb' }
+        ];
       } else if (resource === 'approvals') {
         initialMockData = [{
           id: 'a-1', title: 'Master Bedroom Flooring Material', type: 'Material', due: '2026-05-18', description: 'Please approve the Calacatta Gold marble sample for the master bedroom flooring.', status: 'pending', imageUrl: 'https://images.unsplash.com/photo-1600585154340-be6161a56a0c?w=600&q=80'
