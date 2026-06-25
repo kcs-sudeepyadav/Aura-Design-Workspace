@@ -34,6 +34,7 @@
     "embla-carousel-react": "^8.6.0",
     "emoji-picker-react": "^4.19.1",
     "express": "^5.2.1",
+    "fbx2gltf": "^0.9.7-p1",
     "framer-motion": "^12.4.10",
     "input-otp": "^1.4.2",
     "jsonwebtoken": "^9.0.3",

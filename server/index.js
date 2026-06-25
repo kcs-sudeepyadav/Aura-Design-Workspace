@@ -129,21 +129,59 @@ const storage = multer.diskStorage({
     cb(null, Date.now() + '-' + file.originalname.replace(/[^a-zA-Z0-9.-]/g, '_'));
   }
 });
-const upload = multer({ storage: storage });
+const fileUpload = multer({ storage: storage });
 
-app.post('/api/upload', upload.array('files'), (req, res) => {
+const fbx2gltf = require('fbx2gltf');
+const path = require('path');
+
+app.post('/api/upload', fileUpload.array('files'), async (req, res) => {
   try {
     if (!req.files || req.files.length === 0) {
       return res.status(400).json({ error: 'No files uploaded' });
     }
-    const uploadedDocs = req.files.map(file => ({
-      name: file.originalname,
-      url: `/uploads/${file.filename}`,
-      size: (file.size / (1024 * 1024)).toFixed(2) + ' MB',
-      type: file.originalname.split('.').pop()?.toUpperCase() || 'FILE'
-    }));
+    
+    const uploadedDocs = [];
+    
+    for (const file of req.files) {
+      let finalName = file.originalname;
+      let finalUrl = `/uploads/${file.filename}`;
+      let finalType = file.originalname.split('.').pop()?.toUpperCase() || 'FILE';
+      let finalSize = (file.size / (1024 * 1024)).toFixed(2) + ' MB';
+      
+      if (finalType === 'FBX') {
+        try {
+          console.log(`Converting ${file.originalname} to GLB for native web support...`);
+          const srcPath = path.join(process.cwd(), 'public', 'uploads', file.filename);
+          const destFilename = file.filename.replace(/\.fbx$/i, '.glb');
+          const destPath = path.join(process.cwd(), 'public', 'uploads', destFilename);
+          
+          await fbx2gltf(srcPath, destPath, ['--binary']);
+          
+          finalName = file.originalname.replace(/\.fbx$/i, '.glb');
+          finalUrl = `/uploads/${destFilename}`;
+          finalType = 'GLB';
+          
+          const stats = fs.statSync(destPath);
+          finalSize = (stats.size / (1024 * 1024)).toFixed(2) + ' MB';
+          
+          fs.unlinkSync(srcPath); // clean up old FBX
+          console.log('Conversion successful:', finalName);
+        } catch (convertError) {
+          console.error("FBX conversion failed, keeping original:", convertError);
+        }
+      }
+      
+      uploadedDocs.push({
+        name: finalName,
+        url: finalUrl,
+        size: finalSize,
+        type: finalType
+      });
+    }
+
     res.json({ success: true, files: uploadedDocs });
   } catch (err) {
+    console.error("Upload error:", err);
     res.status(500).json({ error: err.message });
   }
 });
