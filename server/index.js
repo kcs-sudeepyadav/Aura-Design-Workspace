@@ -1,4 +1,7 @@
 import express from 'express';
+import fbx2gltf from 'fbx2gltf';
+import obj2gltf from 'obj2gltf';
+import AdmZip from 'adm-zip';
 import multer from 'multer';
 import cors from 'cors';
 import { GoogleGenAI } from '@google/genai';
@@ -131,9 +134,6 @@ const storage = multer.diskStorage({
 });
 const fileUpload = multer({ storage: storage });
 
-const fbx2gltf = require('fbx2gltf');
-const path = require('path');
-
 app.post('/api/upload', fileUpload.array('files'), async (req, res) => {
   try {
     if (!req.files || req.files.length === 0) {
@@ -143,12 +143,88 @@ app.post('/api/upload', fileUpload.array('files'), async (req, res) => {
     const uploadedDocs = [];
     
     for (const file of req.files) {
-      let finalName = file.originalname;
-      let finalUrl = `/uploads/${file.filename}`;
       let finalType = file.originalname.split('.').pop()?.toUpperCase() || 'FILE';
-      let finalSize = (file.size / (1024 * 1024)).toFixed(2) + ' MB';
-      
-      if (finalType === 'FBX') {
+      const basePayload = {
+        name: file.originalname,
+        url: `/uploads/${file.filename}`,
+        size: (file.size / (1024 * 1024)).toFixed(2) + ' MB',
+        type: finalType
+      };
+
+      if (finalType === 'ZIP') {
+        try {
+          console.log(`Extracting ZIP: ${file.originalname}...`);
+          const zipPath = path.join(process.cwd(), 'public', 'uploads', file.filename);
+          const extractDir = path.join(process.cwd(), 'public', 'uploads', `unzip-${Date.now()}`);
+          
+          const zip = new AdmZip(zipPath);
+          zip.extractAllTo(extractDir, true);
+          
+          // Recursively find all OBJ and FBX files inside the zip
+          const getAllFiles = function(dirPath, arrayOfFiles) {
+            const files = fs.readdirSync(dirPath);
+            arrayOfFiles = arrayOfFiles || [];
+            files.forEach(function(file) {
+              if (fs.statSync(path.join(dirPath, file)).isDirectory()) {
+                arrayOfFiles = getAllFiles(path.join(dirPath, file), arrayOfFiles);
+              } else {
+                arrayOfFiles.push(path.join(dirPath, file));
+              }
+            });
+            return arrayOfFiles;
+          };
+          
+          const allExtractedFiles = getAllFiles(extractDir);
+          let foundModels = false;
+          
+          for (const fullPath of allExtractedFiles) {
+            const exFile = path.basename(fullPath);
+            const exExt = exFile.split('.').pop()?.toUpperCase();
+            
+            if (exExt === 'OBJ' || exExt === 'FBX') {
+              foundModels = true;
+              console.log(`Found ${exExt} in zip at ${fullPath}, converting to GLB...`);
+              
+              const destFilename = `${Date.now()}-${exFile.replace(/\.(obj|fbx)$/i, '.glb')}`;
+              const destPath = path.join(process.cwd(), 'public', 'uploads', destFilename);
+              
+              try {
+                if (exExt === 'FBX') {
+                  await fbx2gltf(fullPath, destPath, ['--binary']);
+                } else if (exExt === 'OBJ') {
+                  const glb = await obj2gltf(fullPath, { binary: true });
+                  fs.writeFileSync(destPath, glb);
+                }
+                
+                const stats = fs.statSync(destPath);
+                uploadedDocs.push({
+                  name: exFile.replace(/\.(obj|fbx)$/i, '.glb'),
+                  url: `/uploads/${destFilename}`,
+                  size: (stats.size / (1024 * 1024)).toFixed(2) + ' MB',
+                  type: 'GLB'
+                });
+                console.log('ZIP Model Conversion successful:', destFilename);
+              } catch(e) {
+                 console.error("Error converting file inside ZIP", e);
+              }
+            }
+          }
+          
+          if (!foundModels) {
+            // No 3D models found, just save the zip as a regular file
+            uploadedDocs.push(basePayload);
+          } else {
+            // Cleanup the original zip file and the extraction dir since we extracted models
+            fs.unlinkSync(zipPath);
+            fs.rmSync(extractDir, { recursive: true, force: true });
+          }
+          continue; // Move to next uploaded file
+        } catch (zipError) {
+          console.error("ZIP processing failed, falling back to basic upload:", zipError);
+          // Fallback to uploading the ZIP as a regular file if extraction/conversion fails
+        }
+      }
+      else if (finalType === 'FBX') {
         try {
           console.log(`Converting ${file.originalname} to GLB for native web support...`);
           const srcPath = path.join(process.cwd(), 'public', 'uploads', file.filename);
@@ -157,26 +233,24 @@ app.post('/api/upload', fileUpload.array('files'), async (req, res) => {
           
           await fbx2gltf(srcPath, destPath, ['--binary']);
           
-          finalName = file.originalname.replace(/\.fbx$/i, '.glb');
-          finalUrl = `/uploads/${destFilename}`;
-          finalType = 'GLB';
-          
           const stats = fs.statSync(destPath);
-          finalSize = (stats.size / (1024 * 1024)).toFixed(2) + ' MB';
-          
           fs.unlinkSync(srcPath); // clean up old FBX
-          console.log('Conversion successful:', finalName);
+          console.log('Conversion successful:', destFilename);
+          
+          uploadedDocs.push({
+            name: file.originalname.replace(/\.fbx$/i, '.glb'),
+            url: `/uploads/${destFilename}`,
+            size: (stats.size / (1024 * 1024)).toFixed(2) + ' MB',
+            type: 'GLB'
+          });
+          continue; // Move to next
         } catch (convertError) {
           console.error("FBX conversion failed, keeping original:", convertError);
         }
       }
       
-      uploadedDocs.push({
-        name: finalName,
-        url: finalUrl,
-        size: finalSize,
-        type: finalType
-      });
+      // Default: just push the original file
+      uploadedDocs.push(basePayload);
     }
 
     res.json({ success: true, files: uploadedDocs });
