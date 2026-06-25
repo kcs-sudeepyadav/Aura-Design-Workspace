@@ -42,6 +42,7 @@ interface Document {
   size: string;
   projectId?: string;
   uploadedBy?: string;
+  status?: 'active' | 'pending_deletion';
 }
 interface Invoice {
   id: string;
@@ -1508,7 +1509,7 @@ export const HubCustomerPage: React.FC<HubPageProps> = ({
   }, [currentUser, onNavigate]);
   const [approvals, setApprovals] = useState<Approval[]>(initialApprovals);
   const [milestones] = useState<Milestone[]>(initialMilestones);
-  const { data: documents, setData: setDocuments } = useApiData('documents');
+  const { data: documents, setData: setDocuments, updateItem: updateDocument, deleteItem: deleteDocument } = useApiData('documents');
   const { data: invoices, setData: setInvoices } = useApiData('invoices');
   const [messages, setMessages] = useState<Message[]>(initialMessages);
   const [messageInput, setMessageInput] = useState('');
@@ -1584,6 +1585,7 @@ export const HubCustomerPage: React.FC<HubPageProps> = ({
     }, 1500);
   };
   const filteredDocs = documents.filter(d => {
+    if (d.status === 'pending_deletion') return false;
     const matchSearch = d.name.toLowerCase().includes(docSearch.toLowerCase());
     const matchFilter = docFilter === 'all' || d.type.toLowerCase() === docFilter.toLowerCase();
     return matchSearch && matchFilter;
@@ -1632,6 +1634,39 @@ export const HubCustomerPage: React.FC<HubPageProps> = ({
                 </div>)}
             </div>
           </div>
+          
+          {/* Pending Document Deletions Queue */}
+          {(documents || []).filter((d: any) => d.status === 'pending_deletion').length > 0 && (
+            <div className="bg-red-900/10 border border-red-500/20 p-5 mt-5">
+              <div className="flex items-center gap-2 mb-4">
+                <AlertCircle size={16} className="text-red-400" />
+                <h3 className="text-red-400 font-semibold">Pending Document Deletions</h3>
+              </div>
+              <div className="space-y-2">
+                {(documents || []).filter((d: any) => d.status === 'pending_deletion').map((doc: any) => (
+                  <div key={doc.id} className="flex items-center justify-between p-3 bg-[#020617] border border-red-500/10 hover:border-red-500/30 transition-colors">
+                    <div className="flex items-center gap-3">
+                      <FileText size={14} className="text-red-400/50" />
+                      <div>
+                        <p className="text-white text-sm font-medium">{doc.name}</p>
+                        <p className="text-white/40 text-xs">
+                          {doc.size} • Uploaded by {doc.uploadedBy || 'PM'}
+                        </p>
+                      </div>
+                    </div>
+                    <div className="flex items-center gap-2">
+                      <button onClick={() => updateDocument && updateDocument(doc.id, { status: 'active' })} className="px-3 py-1.5 bg-white/5 hover:bg-white/10 text-white/70 text-[10px] uppercase tracking-wider rounded transition-colors">
+                        Restore
+                      </button>
+                      <button onClick={() => deleteDocument && deleteDocument(doc.id)} className="px-3 py-1.5 bg-red-500/20 hover:bg-red-500/30 text-red-400 text-[10px] uppercase tracking-wider rounded transition-colors flex items-center gap-1">
+                        <Check size={12} /> Confirm Hard Delete
+                      </button>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
 
           <div className="grid lg:grid-cols-3 gap-5">
             <div className="lg:col-span-2 bg-[#0f172a] border border-amber-500/10 p-5">
@@ -2171,7 +2206,7 @@ export const HubManagerPage: React.FC<HubPageProps> = ({
   });
   const [uploadedFiles, setUploadedFiles] = useState<File[]>([]);
   const [isDragging, setIsDragging] = useState(false);
-  const { data: documents, setData: setDocuments } = useApiData('documents');
+  const { data: documents, setData: setDocuments, updateItem: updateDocument, deleteItem: deleteDocument } = useApiData('documents');
   const { data: projects, setData: setProjects } = useApiData('projects');
   const [selectedUploadProject, setSelectedUploadProject] = useState<string>('');
   const fileInputRef = useRef<HTMLInputElement>(null);
@@ -2978,7 +3013,7 @@ export const HubManagerPage: React.FC<HubPageProps> = ({
                 {documents
                   .filter((d: any) => selectedUploadProject ? d.projectId === selectedUploadProject : assignedProjects.some(p => p.id === d.projectId))
                   .map((doc: any, i: number) => (
-                  <div key={`history-${i}`} className="flex items-center justify-between p-4 bg-[#020617] border border-amber-500/10 hover:border-[#f59e0b]/30 transition-colors group">
+                  <div key={`history-${i}`} className={`flex items-center justify-between p-4 bg-[#020617] border border-amber-500/10 hover:border-[#f59e0b]/30 transition-colors group ${doc.status === 'pending_deletion' ? 'opacity-50 pointer-events-none' : ''}`}>
                     <div className="flex items-center gap-4">
                       <div className="w-10 h-10 bg-[#0f172a] border border-amber-500/10 flex items-center justify-center shrink-0">
                         <FileText size={16} className="text-[#f59e0b]" />
@@ -2996,6 +3031,13 @@ export const HubManagerPage: React.FC<HubPageProps> = ({
                       <button onClick={() => toast.success(`Downloading ${doc.name}...`)} className="w-8 h-8 flex items-center justify-center bg-[#020617] border border-amber-500/10 text-white/40 hover:text-[#f59e0b] hover:border-[#f59e0b]/30 transition-colors" title="Download">
                         <Download size={14} />
                       </button>
+                      {doc.status === 'pending_deletion' ? (
+                        <span className="px-2.5 py-1 bg-red-900/30 text-red-400 border border-red-800/30 text-[10px] uppercase tracking-wider rounded">Pending Admin Approval</span>
+                      ) : (
+                        <button onClick={() => updateDocument && updateDocument(doc.id, { status: 'pending_deletion' })} className="w-8 h-8 flex items-center justify-center bg-[#020617] border border-amber-500/10 text-white/40 hover:text-red-400 hover:border-red-400/30 transition-colors group-hover:bg-[#0f172a]" title="Soft Delete">
+                          <Trash2 size={14} />
+                        </button>
+                      )}
                     </div>
                   </div>
                 ))}
@@ -3043,7 +3085,7 @@ export const HubAdminPage: React.FC<HubPageProps> = ({
   }, [currentUser, onNavigate]);
 
   const { data: users, refetch: refetchUsers } = useApiData('users');
-  const { data: documents, setData: setDocuments } = useApiData('documents');
+  const { data: documents, setData: setDocuments, updateItem: updateDocument, deleteItem: deleteDocument } = useApiData('documents');
   const { data: projects, setData: setProjects } = useApiData('projects');
   const { data: invoices, createItem: createInvoice } = useApiData('invoices');
   const [adminUsers, setAdminUsers] = useState<AdminUser[]>(initialAdminUsers);
