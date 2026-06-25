@@ -180,6 +180,10 @@ export const ChatWindow: React.FC<ChatWindowProps> = ({
       }
       return otherName;
     }
+    if (conversation.type === 'GROUP' && conversation.projectId) {
+      const project = projects.find((p: any) => p.id === conversation.projectId);
+      if (project) return project.name;
+    }
     return conversation.title || 'Conversation';
   };
 

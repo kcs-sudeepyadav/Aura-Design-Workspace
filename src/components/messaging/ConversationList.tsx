@@ -51,6 +51,10 @@ export const ConversationList: React.FC<ConversationListProps> = ({
       }
       return otherName;
     }
+    if (c.type === 'GROUP' && c.projectId) {
+      const project = projects.find((p: any) => p.id === c.projectId);
+      if (project) return project.name;
+    }
     return c.title || 'Conversation';
   };
 
