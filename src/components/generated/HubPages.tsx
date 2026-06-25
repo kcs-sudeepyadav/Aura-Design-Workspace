@@ -1925,7 +1925,7 @@ export const HubCustomerPage: React.FC<HubPageProps> = ({
           {/* 3D Viewer Modal */}
           {selected3DDoc && (
             <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-[#020617]/90 backdrop-blur-sm">
-              <div className="bg-[#0f172a] w-full max-w-5xl h-[80vh] border border-[#f59e0b]/30 flex flex-col shadow-2xl">
+              <div className="bg-[#0f172a] w-[90vw] max-w-[1600px] h-[90vh] border border-[#f59e0b]/30 flex flex-col shadow-2xl">
                 <div className="flex justify-between items-center p-4 border-b border-white/10 bg-[#020617]">
                   <div className="flex items-center gap-3">
                     <div className="bg-[#f59e0b]/20 p-2 rounded">
