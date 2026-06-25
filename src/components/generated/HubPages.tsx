@@ -9,6 +9,7 @@ import { ProfileSettings, SecurityDetails, HelpSupport } from './UserProfileView
 import { MessageHub } from '../messaging/MessageHub';
 import { useApiData } from '../../hooks/useApiData';
 import { io } from 'socket.io-client';
+import Universal3DViewer from './Universal3DViewer';
 type Page = 'home' | 'about' | 'features' | 'portfolio' | 'case-studies' | 'process' | 'testimonials' | 'faqs' | 'contact' | 'book' | 'hub-login' | 'hub-signup' | 'hub-customer' | 'hub-manager' | 'hub-admin' | 'pitch-deck' | 'ai-design' | 'pricing';
 interface HubPageProps {
   onNavigate: (page: Page) => void;
@@ -1905,17 +1906,25 @@ export const HubCustomerPage: React.FC<HubPageProps> = ({
                 
                 <div className="flex-1 relative bg-[#020617] overflow-hidden group flex items-center justify-center">
                   {/* Real 3D Model Viewer */}
-                  {/* @ts-ignore */}
-                  <model-viewer 
-                    src={selected3DDoc.url || 'https://modelviewer.dev/shared-assets/models/Astronaut.glb'}
-                    alt={selected3DDoc.name}
-                    auto-rotate
-                    camera-controls
-                    shadow-intensity="1"
-                    environment-image="neutral"
-                    exposure="1.2"
-                    style={{ width: '100%', height: '100%' }}
-                  ></model-viewer>
+                  {(() => {
+                    const ext = selected3DDoc.url?.match(/\.([a-zA-Z0-9]+)(?:[\?#]|$)/)?.[1]?.toLowerCase() || selected3DDoc.type?.toLowerCase();
+                    if (ext === 'glb' || ext === 'gltf' || ext === 'usdz') {
+                      return (
+                        // @ts-ignore
+                        <model-viewer 
+                          src={selected3DDoc.url || 'https://modelviewer.dev/shared-assets/models/Astronaut.glb'}
+                          alt={selected3DDoc.name}
+                          auto-rotate
+                          camera-controls
+                          shadow-intensity="1"
+                          environment-image="neutral"
+                          exposure="1.2"
+                          style={{ width: '100%', height: '100%' }}
+                        ></model-viewer>
+                      );
+                    }
+                    return <Universal3DViewer url={selected3DDoc.url || ''} type={selected3DDoc.type || ''} />;
+                  })()}
                   
                   {/* WebGL Overlay Grid */}
                   <div className="absolute inset-0 bg-[url('data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSI0MCIgaGVpZ2h0PSI0MCI+PGRlZnM+PHBhdHRlcm4gaWQ9ImdyaWQiIHdpZHRoPSI0MCIgaGVpZ2h0PSI0MCIgcGF0dGVyblVuaXRzPSJ1c2VyU3BhY2VPblVzZSI+PHBhdGggZD0iTSA0MCAwIEwgMCAwIDAgNDAiIGZpbGw9Im5vbmUiIHN0cm9rZT0icmdiYSgyNTUsIDI1NSwgMjU1LCAwLjA1KSIgc3Ryb2tlLXdpZHRoPSIxIi8+PC9wYXR0ZXJuPjwvZGVmcz48cmVjdCB3aWR0aD0iMTAwJSIgaGVpZ2h0PSIxMDAlIiBmaWxsPSJ1cmwoI2dyaWQpIi8+PC9zdmc+')] opacity-50 pointer-events-none"></div>
