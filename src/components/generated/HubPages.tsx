@@ -3343,6 +3343,39 @@ export const HubAdminPage: React.FC<HubPageProps> = ({
             </div>
           </div>
 
+          {/* Pending Document Deletions Queue */}
+          {(documents || []).filter((d: any) => d.status === 'pending_deletion').length > 0 && (
+            <div className="bg-red-900/10 border border-red-500/20 p-5 mt-5">
+              <div className="flex items-center gap-2 mb-4">
+                <AlertCircle size={16} className="text-red-400" />
+                <h3 className="text-red-400 font-semibold">Pending Document Deletions</h3>
+              </div>
+              <div className="space-y-2">
+                {(documents || []).filter((d: any) => d.status === 'pending_deletion').map((doc: any) => (
+                  <div key={doc.id} className="flex items-center justify-between p-3 bg-[#020617] border border-red-500/10 hover:border-red-500/30 transition-colors">
+                    <div className="flex items-center gap-3">
+                      <FileText size={14} className="text-red-400/50" />
+                      <div>
+                        <p className="text-white text-sm font-medium">{doc.name}</p>
+                        <p className="text-white/40 text-xs">
+                          {doc.size} • Uploaded by {doc.uploadedBy || 'PM'}
+                        </p>
+                      </div>
+                    </div>
+                    <div className="flex items-center gap-2">
+                      <button onClick={() => updateDocument && updateDocument(doc.id, { status: 'active' })} className="px-3 py-1.5 bg-white/5 hover:bg-white/10 text-white/70 text-[10px] uppercase tracking-wider rounded transition-colors">
+                        Restore
+                      </button>
+                      <button onClick={() => deleteDocument && deleteDocument(doc.id)} className="px-3 py-1.5 bg-red-500/20 hover:bg-red-500/30 text-red-400 text-[10px] uppercase tracking-wider rounded transition-colors flex items-center gap-1">
+                        <Check size={12} /> Confirm Hard Delete
+                      </button>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
+
           {/* Quick stats strip */}
           <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
             {[{
