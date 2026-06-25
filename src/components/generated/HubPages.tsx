@@ -2332,7 +2332,11 @@ export const HubManagerPage: React.FC<HubPageProps> = ({
         uploadedBy: currentUserId,
         url: fileObj.url
       }));
-      setDocuments(prev => [...prev, ...newDocs]);
+      setDocuments((prev: any) => {
+        const nextData = [...prev, ...newDocs];
+        localStorage.setItem('aura_mock_documents', JSON.stringify(nextData));
+        return nextData;
+      });
       setUploadedFiles([]);
       setSelectedUploadProject('');
     } catch (error) {
