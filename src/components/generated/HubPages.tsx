@@ -2173,6 +2173,8 @@ export const HubManagerPage: React.FC<HubPageProps> = ({
   const { data: siteLogs, setData: setSiteLogs } = useApiData('sitelogs');
   const { data: siteUpdates, setData: setSiteUpdates } = useApiData('siteupdates');
   const [newClientUpdateOpen, setNewClientUpdateOpen] = useState(false);
+  const [isUploading, setIsUploading] = useState(false);
+  const [uploadProgress, setUploadProgress] = useState(0);
   const [clientUpdateForm, setClientUpdateForm] = useState({ title: '', phase: '', description: '', photos: [] as string[] });
   const [newLogOpen, setNewLogOpen] = useState(false);
   const [newIssueOpen, setNewIssueOpen] = useState(false);
@@ -2327,7 +2329,15 @@ export const HubManagerPage: React.FC<HubPageProps> = ({
   } : i));
   const handleFileSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
     const files = Array.from(e.target.files ?? []);
-    setUploadedFiles(prev => [...prev, ...files]);
+    const newFiles = files.filter(f => {
+      const exists = documents?.some((d: any) => d.name === f.name) || uploadedFiles.some(uf => uf.name === f.name);
+      if (exists) {
+        toast.error(`File "${f.name}" already exists.`);
+        return false;
+      }
+      return true;
+    });
+    if (newFiles.length > 0) setUploadedFiles(prev => [...prev, ...newFiles]);
   };
   
   const handleDragOver = (e: React.DragEvent) => {
@@ -2344,28 +2354,55 @@ export const HubManagerPage: React.FC<HubPageProps> = ({
     e.preventDefault();
     setIsDragging(false);
     if (!selectedUploadProject) {
-      alert("Please select a project before dropping files.");
+      toast.error("Please select a project before dropping files.");
       return;
     }
     const files = Array.from(e.dataTransfer.files);
-    if (files.length > 0) {
-      setUploadedFiles(prev => [...prev, ...files]);
+    const newFiles = files.filter(f => {
+      const exists = documents?.some((d: any) => d.name === f.name) || uploadedFiles.some(uf => uf.name === f.name);
+      if (exists) {
+        toast.error(`File "${f.name}" already exists.`);
+        return false;
+      }
+      return true;
+    });
+    if (newFiles.length > 0) {
+      setUploadedFiles(prev => [...prev, ...newFiles]);
     }
   };
   
   const handleUploadSubmit = async () => {
     if (!selectedUploadProject || uploadedFiles.length === 0) return;
+    setIsUploading(true);
+    setUploadProgress(0);
     try {
       const formData = new FormData();
       uploadedFiles.forEach(file => {
         formData.append('files', file);
       });
-      const response = await fetch('/api/upload', {
-        method: 'POST',
-        body: formData,
+      
+      const xhr = new XMLHttpRequest();
+      xhr.open('POST', '/api/upload', true);
+      
+      xhr.upload.onprogress = (e) => {
+        if (e.lengthComputable) {
+          const percentComplete = Math.round((e.loaded / e.total) * 100);
+          setUploadProgress(percentComplete);
+        }
+      };
+
+      const data = await new Promise<any>((resolve, reject) => {
+        xhr.onload = () => {
+          if (xhr.status >= 200 && xhr.status < 300) {
+            resolve(JSON.parse(xhr.responseText));
+          } else {
+            reject(new Error('Upload failed'));
+          }
+        };
+        xhr.onerror = () => reject(new Error('Network error'));
+        xhr.send(formData);
       });
-      if (!response.ok) throw new Error('Upload failed');
-      const data = await response.json();
+
       const newDocs: Document[] = data.files.map((fileObj: any) => ({
         id: `doc-${Date.now()}-${Math.random().toString(36).substr(2, 5)}`,
         name: fileObj.name,
@@ -2374,18 +2411,23 @@ export const HubManagerPage: React.FC<HubPageProps> = ({
         size: fileObj.size,
         projectId: selectedUploadProject,
         uploadedBy: currentUserId,
-        url: fileObj.url
+        url: fileObj.url,
+        status: 'active'
       }));
       setDocuments((prev: any) => {
-        const nextData = [...prev, ...newDocs];
+        const nextData = [...(prev || []), ...newDocs];
         localStorage.setItem('aura_mock_documents', JSON.stringify(nextData));
         return nextData;
       });
       setUploadedFiles([]);
       setSelectedUploadProject('');
+      toast.success('Files uploaded successfully!');
     } catch (error) {
       console.error('Error uploading files:', error);
-      alert('Failed to upload files. Please try again.');
+      toast.error('Failed to upload files. Please try again.');
+    } finally {
+      setIsUploading(false);
+      setUploadProgress(0);
     }
   };
   const priorityColors: Record<string, string> = {
