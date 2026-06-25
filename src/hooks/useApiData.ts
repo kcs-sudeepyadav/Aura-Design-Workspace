@@ -25,7 +25,7 @@ export function useApiData(resource: string) {
     } catch (err: any) {
       setError(err.message);
       
-      const MOCK_VERSION = '1782220719866'; // Bump to guarantee wipe
+      const MOCK_VERSION = '1782220719867'; // Bump to guarantee wipe
       const currentVersion = localStorage.getItem('aura_mock_version');
       
       if (currentVersion !== MOCK_VERSION) {
@@ -181,7 +181,8 @@ export function useApiData(resource: string) {
         initialMockData = [
           { id: 'd-1', name: 'Master Bedroom Elevation.pdf', type: 'DWG', date: 'May 10, 2026', size: '4.2 MB', projectId: 'p-1' },
           { id: 'd-2', name: 'Lighting Schedule Rev 2.xlsx', type: 'XLS', date: 'May 8, 2026', size: '1.1 MB', projectId: 'p-1' },
-          { id: 'd-3', name: 'Living Room 3D Render.glb', type: '3D', date: 'May 12, 2026', size: '12.5 MB', projectId: 'p-1', url: 'https://modelviewer.dev/shared-assets/models/Astronaut.glb' }
+          { id: 'd-3', name: 'Living Room Chair 3D Render.glb', type: '3D', date: 'May 12, 2026', size: '2.5 MB', projectId: 'p-1', url: 'https://raw.githubusercontent.com/KhronosGroup/glTF-Sample-Assets/main/Models/SheenChair/glTF-Binary/SheenChair.glb' },
+          { id: 'd-4', name: 'Exterior Landscape Planter.glb', type: '3D', date: 'May 13, 2026', size: '1.8 MB', projectId: 'p-1', url: 'https://modelviewer.dev/shared-assets/models/GeoPlanter.glb' }
         ];
       } else if (resource === 'approvals') {
         initialMockData = [{
