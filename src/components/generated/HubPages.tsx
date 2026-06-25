@@ -2330,7 +2330,7 @@ export const HubManagerPage: React.FC<HubPageProps> = ({
   const handleFileSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
     const files = Array.from(e.target.files ?? []);
     const newFiles = files.filter(f => {
-      const exists = documents?.some((d: any) => d.name === f.name) || uploadedFiles.some(uf => uf.name === f.name);
+      const exists = documents?.some((d: any) => d.name === f.name && d.status !== 'pending_deletion') || uploadedFiles.some(uf => uf.name === f.name);
       if (exists) {
         toast.error(`File "${f.name}" already exists.`);
         return false;
@@ -2359,7 +2359,7 @@ export const HubManagerPage: React.FC<HubPageProps> = ({
     }
     const files = Array.from(e.dataTransfer.files);
     const newFiles = files.filter(f => {
-      const exists = documents?.some((d: any) => d.name === f.name) || uploadedFiles.some(uf => uf.name === f.name);
+      const exists = documents?.some((d: any) => d.name === f.name && d.status !== 'pending_deletion') || uploadedFiles.some(uf => uf.name === f.name);
       if (exists) {
         toast.error(`File "${f.name}" already exists.`);
         return false;
