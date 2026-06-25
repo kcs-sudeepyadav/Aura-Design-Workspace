@@ -25,7 +25,7 @@ export function useApiData(resource: string) {
     } catch (err: any) {
       setError(err.message);
       
-      const MOCK_VERSION = '1782220719865'; // Bump to guarantee wipe
+      const MOCK_VERSION = '1782220719866'; // Bump to guarantee wipe
       const currentVersion = localStorage.getItem('aura_mock_version');
       
       if (currentVersion !== MOCK_VERSION) {
