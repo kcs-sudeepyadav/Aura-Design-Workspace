@@ -28,6 +28,30 @@ function Loader() {
   );
 }
 
+class ModelErrorBoundary extends React.Component<{ext: string, children: React.ReactNode}, {hasError: boolean, errorMsg: string}> {
+  constructor(props: {ext: string, children: React.ReactNode}) {
+    super(props);
+    this.state = { hasError: false, errorMsg: '' };
+  }
+  static getDerivedStateFromError(error: any) {
+    return { hasError: true, errorMsg: error?.message || 'Unknown parsing error' };
+  }
+  render() {
+    if (this.state.hasError) {
+      return (
+        <Html center>
+          <div className="bg-red-950/90 border border-red-500/30 text-white p-6 rounded-xl text-center max-w-md shadow-2xl backdrop-blur-md">
+            <p className="font-bold text-lg mb-2 text-red-400">Rendering Error</p>
+            <p className="text-white/70 text-sm mb-3">The browser 3D engine failed to parse this {this.props.ext.toUpperCase()} file. It may be an unsupported version or contain unsupported features.</p>
+            <p className="text-red-300 text-[10px] font-mono bg-black/40 p-2 rounded text-left overflow-hidden text-ellipsis whitespace-nowrap" title={this.state.errorMsg}>{this.state.errorMsg}</p>
+          </div>
+        </Html>
+      );
+    }
+    return this.props.children;
+  }
+}
+
 // Dynamic Model Component
 function DynamicModel({ url, extension }: { url: string; extension: string }) {
   const ext = extension.toLowerCase();
@@ -86,9 +110,11 @@ export default function Universal3DViewer({ url, type }: Universal3DViewerProps)
       <Canvas shadows camera={{ position: [0, 0, 5], fov: 50 }}>
         <color attach="background" args={['#020617']} />
         <Suspense fallback={<Loader />}>
-          <Stage environment="city" intensity={0.6} adjustCamera>
-            <DynamicModel url={url} extension={extension} />
-          </Stage>
+          <ModelErrorBoundary ext={extension}>
+            <Stage environment="city" intensity={0.6} adjustCamera>
+              <DynamicModel url={url} extension={extension} />
+            </Stage>
+          </ModelErrorBoundary>
         </Suspense>
         <OrbitControls makeDefault autoRotate autoRotateSpeed={1} />
       </Canvas>
