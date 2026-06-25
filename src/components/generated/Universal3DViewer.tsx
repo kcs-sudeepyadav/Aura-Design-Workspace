@@ -68,9 +68,9 @@ function DynamicModel({ url, extension }: { url: string; extension: string }) {
   if (!LoaderClass) {
     return (
       <Html center>
-        <div className="bg-red-900/80 text-white p-6 rounded-lg text-center max-w-sm">
-          <p className="font-bold text-lg mb-2">Unsupported Format</p>
-          <p className="text-white/70 text-sm">The format .{ext} cannot be rendered natively in the browser without a backend CAD conversion pipeline (e.g. STEP, IGES).</p>
+        <div className="bg-red-900/80 text-white p-6 rounded-lg text-center w-[400px] shadow-2xl backdrop-blur-md">
+          <p className="font-bold text-lg mb-2 text-red-300">Unsupported Format</p>
+          <p className="text-white/80 text-sm leading-relaxed">The format .{ext} cannot be rendered natively in the browser without a backend CAD conversion pipeline (e.g. STEP, IGES).</p>
         </div>
       </Html>
     );
