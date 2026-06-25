@@ -1958,7 +1958,7 @@ export const HubCustomerPage: React.FC<HubPageProps> = ({
                         ></model-viewer>
                       );
                     }
-                    return <Universal3DViewer url={selected3DDoc.url || ''} type={selected3DDoc.type || ''} />;
+                    return <Universal3DViewer url={selected3DDoc.url || ''} type={selected3DDoc.type || ''} orbitSpeed={orbitSpeed} resetHash={viewerResetHash} />;
                   })()}
                   
                   {/* WebGL Overlay Grid */}
@@ -1966,13 +1966,13 @@ export const HubCustomerPage: React.FC<HubPageProps> = ({
 
                   {/* Viewer Controls */}
                   <div className="absolute bottom-6 left-1/2 -translate-x-1/2 flex items-center gap-4 bg-[#0f172a]/90 backdrop-blur border border-white/10 px-6 py-3 rounded-full shadow-xl">
-                    <button className="text-white/50 hover:text-white transition-colors"><RefreshCw size={18} /></button>
+                    <button onClick={() => setViewerResetHash(Date.now())} className="text-white/50 hover:text-white transition-colors"><RefreshCw size={18} /></button>
                     <div className="w-px h-4 bg-white/10"></div>
-                    <button className="text-white/50 hover:text-[#f59e0b] transition-colors"><ChevronLeft size={20} /></button>
-                    <span className="text-[10px] text-white/60 tracking-widest uppercase font-semibold mx-2" >Orbit</span>
-                    <button className="text-white/50 hover:text-[#f59e0b] transition-colors"><ChevronRight size={20} /></button>
+                    <button onClick={() => setOrbitSpeed(s => s === 0 ? -1 : (s > 0 ? -s : s * 1.5))} className="text-white/50 hover:text-[#f59e0b] transition-colors"><ChevronLeft size={20} /></button>
+                    <button onClick={() => setOrbitSpeed(s => s === 0 ? 1 : 0)} className="text-[10px] text-white/60 tracking-widest uppercase font-semibold mx-2 hover:text-white" >Orbit</button>
+                    <button onClick={() => setOrbitSpeed(s => s === 0 ? 1 : (s < 0 ? -s : s * 1.5))} className="text-white/50 hover:text-[#f59e0b] transition-colors"><ChevronRight size={20} /></button>
                     <div className="w-px h-4 bg-white/10"></div>
-                    <button className="text-white/50 hover:text-white transition-colors"><Download size={18} /></button>
+                    <button onClick={() => window.open(selected3DDoc?.url, '_blank')} className="text-white/50 hover:text-white transition-colors"><Download size={18} /></button>
                   </div>
 
                   {/* Loading overlay simulation */}
@@ -2175,6 +2175,8 @@ export const HubManagerPage: React.FC<HubPageProps> = ({
   const [newClientUpdateOpen, setNewClientUpdateOpen] = useState(false);
   const [isUploading, setIsUploading] = useState(false);
   const [uploadProgress, setUploadProgress] = useState(0);
+  const [orbitSpeed, setOrbitSpeed] = useState(1);
+  const [viewerResetHash, setViewerResetHash] = useState(0);
   const [clientUpdateForm, setClientUpdateForm] = useState({ title: '', phase: '', description: '', photos: [] as string[] });
   const [newLogOpen, setNewLogOpen] = useState(false);
   const [newIssueOpen, setNewIssueOpen] = useState(false);

@@ -1,4 +1,4 @@
-import React, { Suspense, useMemo } from 'react';
+import React, { Suspense, useMemo, useRef, useEffect } from 'react';
 import { Canvas, useLoader } from '@react-three/fiber';
 import { OrbitControls, Stage, useProgress, Html } from '@react-three/drei';
 import * as THREE from 'three';
@@ -98,16 +98,30 @@ function DynamicModel({ url, extension }: { url: string; extension: string }) {
 interface Universal3DViewerProps {
   url: string;
   type: string;
+  orbitSpeed?: number;
+  resetHash?: number;
 }
 
-export default function Universal3DViewer({ url, type }: Universal3DViewerProps) {
+function ViewerControls({ orbitSpeed = 1, resetHash = 0 }) {
+  const controlsRef = useRef<any>(null);
+
+  useEffect(() => {
+    if (resetHash > 0 && controlsRef.current) {
+      controlsRef.current.reset();
+    }
+  }, [resetHash]);
+
+  return <OrbitControls ref={controlsRef} makeDefault autoRotate={orbitSpeed !== 0} autoRotateSpeed={orbitSpeed} minDistance={0.01} maxDistance={5000} enableDamping dampingFactor={0.05} />;
+}
+
+export default function Universal3DViewer({ url, type, orbitSpeed = 1, resetHash = 0 }: Universal3DViewerProps) {
   // Extract extension from URL or type
   const extensionMatch = url.match(/\.([a-zA-Z0-9]+)(?:[\?#]|$)/);
   const extension = extensionMatch ? extensionMatch[1].toLowerCase() : type.toLowerCase();
 
   return (
     <div className="w-full h-full relative bg-[#020617]">
-      <Canvas shadows camera={{ position: [0, 0, 5], fov: 50 }}>
+      <Canvas shadows camera={{ position: [0, 0, 5], fov: 50, near: 0.01, far: 5000 }}>
         <color attach="background" args={['#020617']} />
         <Suspense fallback={<Loader />}>
           <ModelErrorBoundary ext={extension}>
@@ -116,7 +130,7 @@ export default function Universal3DViewer({ url, type }: Universal3DViewerProps)
             </Stage>
           </ModelErrorBoundary>
         </Suspense>
-        <OrbitControls makeDefault autoRotate autoRotateSpeed={1} />
+        <ViewerControls orbitSpeed={orbitSpeed} resetHash={resetHash} />
       </Canvas>
     </div>
   );
