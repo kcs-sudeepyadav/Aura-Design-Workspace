@@ -1517,6 +1517,8 @@ export const HubCustomerPage: React.FC<HubPageProps> = ({
   const [docSearch, setDocSearch] = useState('');
   const [docFilter, setDocFilter] = useState('all');
   const [selected3DDoc, setSelected3DDoc] = useState<any | null>(null);
+  const [orbitSpeed, setOrbitSpeed] = useState(1);
+  const [viewerResetHash, setViewerResetHash] = useState(0);
   const { data: siteUpdates } = useApiData('siteupdates');
   const [selectedUpdate, setSelectedUpdate] = useState<SiteUpdate | null>(null);
   const [activePhotoIndex, setActivePhotoIndex] = useState(0);
@@ -1943,7 +1945,7 @@ export const HubCustomerPage: React.FC<HubPageProps> = ({
                   {/* Real 3D Model Viewer */}
                   {(() => {
                     const ext = selected3DDoc.url?.match(/\.([a-zA-Z0-9]+)(?:[\?#]|$)/)?.[1]?.toLowerCase() || selected3DDoc.type?.toLowerCase();
-                    if (ext === 'glb' || ext === 'gltf' || ext === 'usdz') {
+                    if (ext === 'usdz') {
                       return (
                         // @ts-ignore
                         <model-viewer 
@@ -2175,8 +2177,6 @@ export const HubManagerPage: React.FC<HubPageProps> = ({
   const [newClientUpdateOpen, setNewClientUpdateOpen] = useState(false);
   const [isUploading, setIsUploading] = useState(false);
   const [uploadProgress, setUploadProgress] = useState(0);
-  const [orbitSpeed, setOrbitSpeed] = useState(1);
-  const [viewerResetHash, setViewerResetHash] = useState(0);
   const [clientUpdateForm, setClientUpdateForm] = useState({ title: '', phase: '', description: '', photos: [] as string[] });
   const [newLogOpen, setNewLogOpen] = useState(false);
   const [newIssueOpen, setNewIssueOpen] = useState(false);
