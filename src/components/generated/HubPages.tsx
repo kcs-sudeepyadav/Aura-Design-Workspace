@@ -788,7 +788,7 @@ export const HubSignupPage: React.FC<HubPageProps> = ({
                   <span>Password </span><span className="text-[#f59e0b]">*</span>
                 </label>
                 <div className="relative">
-                  <input name="password" type={showPw ? 'text' : 'password'} value={form.password} onChange={handleChange} placeholder="Min. 6 characters" className="w-full bg-[#0f172a] border border-slate-800 text-white px-4 pr-11 py-3 text-sm focus:outline-none focus:border-[#f59e0b]/40 transition-colors placeholder:text-white/20"  />
+                  <input name="password" type={showPw ? 'text' : 'password'} value={form.password} onChange={handleChange} autoComplete="new-password" placeholder="Min. 6 characters" className="w-full bg-[#0f172a] border border-slate-800 text-white px-4 pr-11 py-3 text-sm focus:outline-none focus:border-[#f59e0b]/40 transition-colors placeholder:text-white/20"  />
                   <button type="button" onClick={() => setShowPw(!showPw)} className="absolute right-3.5 top-1/2 -translate-y-1/2 text-white/25 hover:text-white/55 transition-colors">
                     {showPw ? <EyeOff size={14} /> : <Eye size={14} />}
                   </button>
@@ -798,7 +798,7 @@ export const HubSignupPage: React.FC<HubPageProps> = ({
                 <label className="text-[10px] text-white/35 tracking-[0.12em] uppercase block mb-2" >
                   <span>Confirm Password </span><span className="text-[#f59e0b]">*</span>
                 </label>
-                <input name="confirm" type="password" value={form.confirm} onChange={handleChange} placeholder="Repeat password" className="w-full bg-[#0f172a] border border-slate-800 text-white px-4 py-3 text-sm focus:outline-none focus:border-[#f59e0b]/40 transition-colors placeholder:text-white/20"  />
+                <input name="confirm" type="password" value={form.confirm} onChange={handleChange} autoComplete="new-password" placeholder="Repeat password" className="w-full bg-[#0f172a] border border-slate-800 text-white px-4 py-3 text-sm focus:outline-none focus:border-[#f59e0b]/40 transition-colors placeholder:text-white/20"  />
               </div>
             </div>
 
@@ -1000,7 +1000,7 @@ export const HubLoginPage: React.FC<HubPageProps> = ({
               <label className="text-[10px] text-white/35 tracking-[0.12em] uppercase block mb-2" >Email Address</label>
               <div className="relative">
                 <Mail size={13} className="absolute left-4 top-1/2 -translate-y-1/2 text-white/20" />
-                <input type="email" value={email} onChange={e => {
+                <input type="email" value={email} autoComplete="email" onChange={e => {
                 setEmail(e.target.value);
                 setError('');
               }} placeholder="your@email.com" className="w-full bg-[#0f172a] border border-slate-800 text-white pl-10 pr-4 py-3.5 text-sm focus:outline-none focus:border-[#f59e0b]/40 transition-colors placeholder:text-white/20"  />
@@ -1010,7 +1010,7 @@ export const HubLoginPage: React.FC<HubPageProps> = ({
               <label className="text-[10px] text-white/35 tracking-[0.12em] uppercase block mb-2" >Password</label>
               <div className="relative">
                 <Lock size={13} className="absolute left-4 top-1/2 -translate-y-1/2 text-white/20" />
-                <input type={showPw ? 'text' : 'password'} value={password} onChange={e => {
+                <input type={showPw ? 'text' : 'password'} value={password} autoComplete="current-password" onChange={e => {
                 setPassword(e.target.value);
                 setError('');
               }} placeholder="••••••••" className="w-full bg-[#0f172a] border border-slate-800 text-white pl-10 pr-12 py-3.5 text-sm focus:outline-none focus:border-[#f59e0b]/40 transition-colors placeholder:text-white/20"  />
