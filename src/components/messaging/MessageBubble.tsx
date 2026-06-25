@@ -11,6 +11,15 @@ interface MessageBubbleProps {
   hideName?: boolean;
 }
 
+
+const resolveImageUrl = (url) => {
+  if (!url) return '';
+  if (url.startsWith('data:')) return url;
+  if (url.startsWith('http')) return url;
+  if (url.startsWith('/uploads')) return `${import.meta.env.BASE_URL}${url.slice(1)}`;
+  return url;
+};
+
 export const MessageBubble: React.FC<MessageBubbleProps> = ({ message, isMine, sender, id, onDelete, hideName }) => {
   const [fullscreenAttachment, setFullscreenAttachment] = useState<any | null>(null);
   const time = new Date(message.timestamp).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
@@ -62,7 +71,7 @@ export const MessageBubble: React.FC<MessageBubbleProps> = ({ message, isMine, s
                   {att.type === 'image' ? (
                     <div className="relative inline-block group/img">
                       <img 
-                        src={att.url} 
+                        src={resolveImageUrl(att.url)} 
                         alt={att.name} 
                         onClick={() => setFullscreenAttachment(att)}
                         className="max-w-[250px] max-h-[200px] rounded-lg object-contain border border-black/10 cursor-pointer hover:opacity-90 transition-opacity" 
@@ -120,7 +129,7 @@ export const MessageBubble: React.FC<MessageBubbleProps> = ({ message, isMine, s
         >
           <div className="relative inline-block max-w-[90vw] max-h-[90vh]">
             <img 
-              src={fullscreenAttachment.url} 
+              src={resolveImageUrl(fullscreenAttachment.url)} 
               alt="Fullscreen Attachment" 
               className="max-w-full max-h-[90vh] object-contain drop-shadow-2xl rounded-sm pointer-events-none" 
             />
@@ -130,7 +139,7 @@ export const MessageBubble: React.FC<MessageBubbleProps> = ({ message, isMine, s
               return (
               <div 
                 key={idx} 
-                className="absolute w-8 h-8 -translate-x-1/2 -translate-y-1/2 bg-amber-500 rounded-full flex items-center justify-center cursor-help hover:scale-110 transition-transform shadow-lg shadow-black/50 group/spot z-20 pointer-events-auto"
+                className="absolute w-8 h-8 -translate-x-1/2 -translate-y-1/2 bg-amber-500 rounded-full flex items-center justify-center cursor-help hover:scale-110 transition-transform shadow-lg shadow-black/50 group/spot z-20 hover:z-50 pointer-events-auto"
                 style={{ top, left }}
                 onClick={(e) => e.stopPropagation()}
               >
