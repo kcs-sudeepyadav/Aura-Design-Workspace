@@ -1912,6 +1912,8 @@ export const HubCustomerPage: React.FC<HubPageProps> = ({
                     auto-rotate
                     camera-controls
                     shadow-intensity="1"
+                    environment-image="neutral"
+                    exposure="1.2"
                     style={{ width: '100%', height: '100%' }}
                   ></model-viewer>
                   
