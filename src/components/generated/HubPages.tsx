@@ -1560,203 +1560,6 @@ export const HubCustomerPage: React.FC<HubPageProps> = ({
       from: 'You',
       text: messageInput.trim(),
       time: new Date().toLocaleTimeString('en-US', {
-                  <Icon size={16} className="shrink-0" />
-                  <span className="flex-1 text-left">{label}</span>
-                  {id === 'messages' && unreadMessagesCount > 0 && (
-                    <span className="bg-[#f59e0b] text-[#020617] text-[10px] font-bold px-1.5 py-0.5 rounded-sm">
-                      {unreadMessagesCount}
-                    </span>
-                  )}
-                </button>
-              ))}
-            </nav>
-            <div className="border-t border-amber-500/10 p-4 space-y-3">
-              <button onClick={() => {
-                        localStorage.removeItem('aura_token');
-                        localStorage.removeItem('aura_user');
-                        onNavigate('hub-login');
-                        setMobileSidebarOpen(false);
-                      }} className="flex items-center gap-2 text-white/30 text-sm" >
-                <LogIn size={14} /><span>Sign Out</span>
-              </button>
-              <button onClick={() => {
-            onNavigate('home');
-            setMobileSidebarOpen(false);
-          }} className="flex items-center gap-2 text-white/30 text-sm" >
-                <Home size={14} /><span>Public Site</span>
-              </button>
-            </div>
-          </div>
-          <div className="flex-1 bg-black/60" onClick={() => setMobileSidebarOpen(false)} />
-        </div>}
-
-      {/* Main content area */}
-      <div className="flex-1 flex flex-col min-w-0">
-        {/* Top bar */}
-        <header className="h-16 bg-[#0f172a] border-b border-amber-500/10 flex items-center justify-between px-5 shrink-0">
-          <div className="flex items-center gap-3">
-            <button className="md:hidden text-white/50 hover:text-white/80 transition-colors" onClick={() => setMobileSidebarOpen(true)}>
-              <Menu size={20} />
-            </button>
-            <div>
-              <h1 className="text-white text-sm font-medium" >{tabLabel}</h1>
-              <p className={`text-[10px] tracking-[0.1em] uppercase hidden md:block ${roleBadgeColor}`} >{roleLabel}</p>
-            </div>
-          </div>
-          <div className="flex items-center gap-3" ref={dropdownRef}>
-            <div className="relative">
-              <button onClick={() => setNotifOpen(!notifOpen)} className="relative text-white/40 hover:text-white/70 transition-colors p-2">
-                <Bell size={16} />
-                {notifCount > 0 && <span className="absolute top-1 right-1 w-3.5 h-3.5 bg-[#f59e0b] rounded-full text-[#020617] text-[8px] font-bold flex items-center justify-center">{notifCount}</span>}
-              </button>
-              {notifOpen && <div className="absolute right-0 top-12 w-80 bg-[#0f172a] border border-amber-500/10 shadow-2xl z-50">
-                  <div className="p-4 border-b border-amber-500/10 flex justify-between items-center">
-                    <p className="text-white text-sm font-medium" >Notifications</p>
-                    <button onClick={() => setNotifOpen(false)} className="text-white/30 hover:text-white/60"><X size={14} /></button>
-                  </div>
-                  {notifications.map(n => <div key={n.id} className="p-4 border-b border-amber-500/10 hover:bg-white/3 transition-colors cursor-pointer">
-                      <div className="flex items-start gap-3">
-                        <div className={`w-2 h-2 rounded-full mt-1.5 shrink-0 ${n.read ? 'bg-white/10' : 'bg-[#f59e0b]'}`} />
-                        <div>
-                          <p className="text-white/80 text-xs leading-relaxed" >{n.text}</p>
-                          <p className="text-white/30 text-[10px] mt-1" >{n.time}</p>
-                        </div>
-                      </div>
-                    </div>)}
-                  <div className="p-3 text-center">
-                    <button className="text-[#f59e0b] text-xs hover:text-[#fbbf24] transition-colors" >Mark all as read</button>
-                  </div>
-                </div>}
-            </div>
-            <div className="relative">
-              <button onClick={() => setProfileOpen(!profileOpen)} className="flex items-center gap-2.5 hover:bg-white/5 p-1 rounded transition-colors pr-2">
-                <div className="w-8 h-8 bg-[#f59e0b]/15 border border-[#f59e0b]/20 rounded-full flex items-center justify-center text-[#f59e0b] text-xs font-semibold">{userInitials}</div>
-                {userName && <span className="text-white/70 text-xs hidden sm:block" >{userName}</span>}
-                <ChevronDown size={14} className="text-white/30 hidden sm:block" />
-              </button>
-              
-              {profileOpen && (
-                <div className="absolute right-0 top-[calc(100%+8px)] w-56 bg-[#0f172a] border border-amber-500/10 shadow-2xl z-50 py-2">
-                  <div className="px-4 py-3 border-b border-amber-500/10 mb-2">
-                    <p className="text-white text-sm font-medium" >{userName}</p>
-                    <p className="text-white/40 text-xs mt-0.5" >{roleLabel}</p>
-                  </div>
-                  
-                  <button onClick={() => { onTabChange('profile-settings'); setProfileOpen(false); }} className="w-full flex items-center gap-3 px-4 py-2.5 text-white/50 hover:text-white hover:bg-white/5 text-sm transition-colors" >
-                    <Settings size={14} /> Profile Settings
-                  </button>
-                  <button onClick={() => { onTabChange('security-details'); setProfileOpen(false); }} className="w-full flex items-center gap-3 px-4 py-2.5 text-white/50 hover:text-white hover:bg-white/5 text-sm transition-colors" >
-                    <Shield size={14} /> Security Details
-                  </button>
-                  <button onClick={() => { onTabChange('help-support'); setProfileOpen(false); }} className="w-full flex items-center gap-3 px-4 py-2.5 text-white/50 hover:text-white hover:bg-white/5 text-sm transition-colors" >
-                    <AlertCircle size={14} /> Help & Support
-                  </button>
-                  
-                  <div className="border-t border-amber-500/10 mt-2 pt-2">
-                        <button onClick={() => {
-                          localStorage.removeItem('aura_token');
-                          localStorage.removeItem('aura_user');
-                          onNavigate('hub-login');
-                        }} className="w-full flex items-center gap-3 px-4 py-2.5 text-red-400/80 hover:text-red-400 hover:bg-red-500/10 text-sm transition-colors" >
-                          <LogIn size={14} /> Sign Out
-                        </button>
-                  </div>
-                </div>
-              )}
-            </div>
-          </div>
-        </header>
-
-        {/* Mobile tab bar */}
-        <div className="md:hidden flex overflow-x-auto border-b border-amber-500/10 bg-[#0f172a] px-2 shrink-0">
-          {tabs.map(({
-          id,
-          label,
-          icon: Icon
-        }) => <button key={id} onClick={() => onTabChange(id)} className={`shrink-0 flex items-center gap-1.5 px-3 py-3 text-xs border-b-2 transition-colors ${activeTab === id ? 'border-[#f59e0b] text-[#f59e0b]' : 'border-transparent text-white/35'}`} >
-              <Icon size={13} />
-              <span>{label}</span>
-            </button>)}
-        </div>
-
-        <main className="flex-1 overflow-y-auto p-5 md:p-6">{children}</main>
-      </div>
-    </div>;
-};
-
-/* ─────────────────── CLIENT DASHBOARD ─────────────────── */
-
-export interface Document { id: string; name: string; type: string; date: string; size: string; projectId?: string; status?: string; url?: string; }
-
-export const HubCustomerPage: React.FC<HubPageProps> = ({
-  onNavigate
-}) => {
-  const [activeTab, setActiveTab] = useState('overview');
-  const userStr = localStorage.getItem('aura_user');
-  const currentUser = userStr ? JSON.parse(userStr) : { id: 'c-1', role: 'customer', name: 'Ananya Mehta' };
-  const userName = currentUser?.name || 'Ananya Mehta';
-  const userInitials = userName.split(' ').map((n: string) => n[0]).join('').substring(0, 2).toUpperCase();
-  const { data: users } = useApiData('users');
-
-  useEffect(() => {
-    if (currentUser && currentUser.role !== 'customer' && currentUser.role !== 'client') {
-      onNavigate(currentUser.role === 'manager' ? 'hub-manager' : 'hub-admin');
-    }
-  }, [currentUser, onNavigate]);
-  const [approvals, setApprovals] = useState<Approval[]>(initialApprovals);
-  const [milestones] = useState<Milestone[]>(initialMilestones);
-  const { data: documents, setData: setDocuments } = useApiData('documents');
-  const { data: invoices, setData: setInvoices } = useApiData('invoices');
-  const [messages, setMessages] = useState<Message[]>(initialMessages);
-  const [messageInput, setMessageInput] = useState('');
-  const [selectedApproval, setSelectedApproval] = useState<Approval | null>(null);
-  const [docSearch, setDocSearch] = useState('');
-  const [docFilter, setDocFilter] = useState('all');
-  const [selected3DDoc, setSelected3DDoc] = useState<any | null>(null);
-  const { data: siteUpdates } = useApiData('siteupdates');
-  const [selectedUpdate, setSelectedUpdate] = useState<SiteUpdate | null>(null);
-  const [activePhotoIndex, setActivePhotoIndex] = useState(0);
-  const messagesEndRef = useRef<HTMLDivElement>(null);
-  const pendingCount = approvals.filter(a => a.status === 'pending').length;
-  const completedMilestones = milestones.filter(m => m.done).length;
-  const totalProgress = Math.round(completedMilestones / milestones.length * 100);
-  
-  const parseAmount = (val: string) => parseInt(val.replace(/[^0-9]/g, ''), 10) || 0;
-  const formatCurrency = (val: number) => new Intl.NumberFormat('en-IN', { style: 'currency', currency: 'INR', maximumFractionDigits: 0 }).format(val);
-  
-  const totalPaid = invoices.filter((i: any) => i.status === 'paid').reduce((sum: number, inv: any) => sum + parseAmount(inv.amount), 0);
-  const totalOutstanding = invoices.filter((i: any) => i.status === 'pending').reduce((sum: number, inv: any) => sum + parseAmount(inv.amount), 0);
-  const totalOverdueAmount = invoices.filter((i: any) => i.status === 'overdue').reduce((sum: number, inv: any) => sum + parseAmount(inv.amount), 0);
-  const overdueInvoices = invoices.filter((i: any) => i.status === 'overdue').length;
-  const paidInvoices = invoices.filter((i: any) => i.status === 'paid').length;
-  const handlePayment = async (invoiceId: string) => {
-    try {
-      const token = localStorage.getItem('aura_token');
-      const res = await fetch(`http://localhost:3001/api/invoices/${invoiceId}/pay`, {
-        method: 'POST',
-        headers: { 'Authorization': `Bearer ${token}` }
-      });
-      const data = await res.json();
-      if (data.url) window.location.href = data.url;
-    } catch (err) {
-      toast.error('Payment failed to initialize.');
-    }
-  };
-  const handleApproval = (id: string, status: 'approved' | 'declined') => {
-    setApprovals(prev => prev.map(a => a.id === id ? {
-      ...a,
-      status
-    } : a));
-    setSelectedApproval(null);
-    toast.success(`Approval ${status} successfully`);
-  };
-  const sendMessage = () => {
-    if (!messageInput.trim()) return;
-    const newMsg: Message = {
-      id: `msg-${Date.now()}`,
-      from: 'You',
-      text: messageInput.trim(),
-      time: new Date().toLocaleTimeString('en-US', {
         hour: '2-digit',
         minute: '2-digit'
       }),
@@ -1781,7 +1584,6 @@ export const HubCustomerPage: React.FC<HubPageProps> = ({
     }, 1500);
   };
   const filteredDocs = documents.filter(d => {
-    if (d.status === 'pending_deletion') return false;
     const matchSearch = d.name.toLowerCase().includes(docSearch.toLowerCase());
     const matchFilter = docFilter === 'all' || d.type.toLowerCase() === docFilter.toLowerCase();
     return matchSearch && matchFilter;
@@ -2369,7 +2171,7 @@ export const HubManagerPage: React.FC<HubPageProps> = ({
   });
   const [uploadedFiles, setUploadedFiles] = useState<File[]>([]);
   const [isDragging, setIsDragging] = useState(false);
-  const { data: documents, setData: setDocuments, updateItem: updateDocument } = useApiData('documents');
+  const { data: documents, setData: setDocuments } = useApiData('documents');
   const { data: projects, setData: setProjects } = useApiData('projects');
   const [selectedUploadProject, setSelectedUploadProject] = useState<string>('');
   const fileInputRef = useRef<HTMLInputElement>(null);
@@ -2682,7 +2484,7 @@ export const HubManagerPage: React.FC<HubPageProps> = ({
           </div>
         </div>}
 
-      {/* ── SITE LOGS ── */}
+      {/* ── SITE LOGS ── */}﻿      {/* 🔹 SITE TRACKING & UPDATES 🔹 */}
       {activeTab === 'logs' && <div className="space-y-4">
           
           <div className="flex gap-3 mb-6">
@@ -3071,6 +2873,126 @@ export const HubManagerPage: React.FC<HubPageProps> = ({
                   </div>
                 )}
               </div>
+              <div className="flex justify-end gap-3 pt-2">
+                <button onClick={() => setNewApprovalOpen(false)} className="px-6 py-2.5 text-xs border border-amber-500/10 text-white/40 hover:text-white/70 transition-colors" >Cancel</button>
+                <button onClick={addApproval} className="bg-[#f59e0b] text-[#020617] px-6 py-2.5 text-xs font-semibold hover:bg-[#fbbf24] transition-colors shadow-sm" >Send Request</button>
+              </div>
+            </div>
+          </div>}
+
+          <div className="bg-[#0f172a] border border-amber-500/10 p-5">
+            <div className="flex justify-between items-center mb-5">
+              <h2 className="text-white font-semibold" >Client Approvals — Pending</h2>
+              <button onClick={() => setNewApprovalOpen(!newApprovalOpen)} className="bg-[#f59e0b] text-[#020617] px-4 py-2 text-xs font-semibold flex items-center gap-2 hover:bg-[#fbbf24] transition-colors shadow-sm" >
+                <PlusCircle size={13} /><span>Request Approval</span>
+              </button>
+            </div>
+          <div className="space-y-3">
+            {pendingApprovals.map(a => <div key={a.id} className="flex items-center gap-4 p-4 bg-[#020617] border border-amber-500/10">
+                {a.imageUrl && <img src={a.imageUrl} alt={a.title} className="w-14 h-14 object-cover shrink-0 opacity-70" />}
+                <div className="flex-1 min-w-0">
+                  <div className="flex items-center gap-2 mb-0.5">
+                    <p className="text-white text-sm font-medium" >{a.title}</p>
+                    {a.projectId && <span className="px-1.5 py-0.5 bg-white/5 border border-white/10 rounded text-white/50 text-[10px] tracking-normal capitalize">{assignedProjects.find(p => p.id === a.projectId)?.name || (a.projectId === 'prj-1' ? assignedProjects[0]?.name : assignedProjects[1]?.name) || 'Unknown Project'}</span>}
+                  </div>
+                  <p className="text-white/30 text-xs mt-0.5" >{a.type} · <span className="text-[#f59e0b]/80">{formatIndianDate(a.due)}</span></p>
+                  <p className="text-white/40 text-xs mt-1 line-clamp-1" >{a.description}</p>
+                </div>
+                <div className="shrink-0">
+                  <span className="text-[10px] text-yellow-400 bg-yellow-900/20 border border-yellow-800/20 px-2.5 py-1 uppercase tracking-wider" >Awaiting Client</span>
+                </div>
+              </div>)}
+            {pendingApprovals.length === 0 && <div className="text-center py-10">
+                <CheckCircle2 size={28} className="text-emerald-400/40 mx-auto mb-2" />
+                <p className="text-white/30 text-sm" >No pending approvals from clients</p>
+              </div>}
+          </div>
+        </div>
+      </div>}
+
+      {/* ── UPLOAD ── */}
+      {activeTab === 'upload' && <div className="space-y-4">
+          <input ref={fileInputRef} type="file" multiple className="hidden" onChange={handleFileSelect} />
+          <div className="bg-[#0f172a] border border-amber-500/10 p-6">
+            <div className="flex justify-between items-center mb-5">
+              <h2 className="text-white font-semibold" >Upload Site Files</h2>
+              <select value={selectedUploadProject} onChange={e => setSelectedUploadProject(e.target.value)} className="bg-[#020617] border border-slate-800 text-white px-3 py-1.5 text-sm focus:outline-none focus:border-[#f59e0b]/40 transition-colors" >
+                <option value="">Select Project</option>
+                {assignedProjects.map(p => (
+                  <option key={p.id} value={p.id}>{p.name}</option>
+                ))}
+              </select>
+            </div>
+            {!selectedUploadProject ? (
+              <div className="w-full border-2 border-dashed border-red-500/20 bg-red-900/10 p-14 flex flex-col items-center gap-3">
+                <AlertCircle size={32} className="text-red-400/50" />
+                <div className="text-center">
+                  <p className="text-red-400 font-medium mb-1" >Select a Project First</p>
+                  <p className="text-red-400/60 text-sm" >You must choose a project from the dropdown above before uploading files.</p>
+                </div>
+              </div>
+            ) : (
+              <button onClick={() => fileInputRef.current?.click()} onDragOver={handleDragOver} onDragLeave={handleDragLeave} onDrop={handleDrop} className={`w-full border-2 border-dashed p-14 flex flex-col items-center gap-3 group transition-colors ${isDragging ? 'border-[#f59e0b] bg-[#f59e0b]/5' : 'border-amber-500/10 hover:border-[#f59e0b]/30'}`}>
+                <Upload size={32} className="text-white/20 group-hover:text-[#f59e0b]/50 transition-colors" />
+                <div className="text-center">
+                  <p className="text-white font-medium mb-1" >Drop files here or click to browse</p>
+                  <p className="text-white/40 text-sm" >Photos, PDFs, DWG, ZIP — all file types accepted</p>
+                </div>
+                <span className="bg-[#f59e0b] text-[#020617] px-7 py-2.5 text-xs font-semibold hover:bg-[#fbbf24] transition-colors shadow-sm" >Browse Files</span>
+              </button>
+            )}
+
+            {uploadedFiles.length > 0 && <div className="mt-5">
+                <h3 className="text-white/50 text-xs tracking-[0.1em] uppercase mb-3" >Queued for Upload ({uploadedFiles.length})</h3>
+                <div className="space-y-2">
+                  {uploadedFiles.map((file, i) => <div key={`uploaded-${i}`} className="flex items-center justify-between p-3 bg-[#020617] border border-amber-500/10">
+                      <div className="flex items-center gap-3">
+                        <Image size={14} className="text-[#f59e0b]" />
+                        <p className="text-white text-sm" >{file.name}</p>
+                      </div>
+                      <div className="flex items-center gap-3">
+                        <div className="w-20 h-1 bg-white/5 rounded-full overflow-hidden">
+                          <div className="h-full bg-[#f59e0b] rounded-full" style={{
+                    width: '100%'
+                  }} />
+                        </div>
+                        <button onClick={() => setUploadedFiles(prev => prev.filter((_, idx) => idx !== i))} className="text-white/20 hover:text-red-400 transition-colors"><X size={13} /></button>
+                      </div>
+                    </div>)}
+                </div>
+                <button onClick={handleUploadSubmit} disabled={!selectedUploadProject} className={`mt-4 px-7 py-2.5 text-xs font-semibold flex items-center gap-2 shadow-sm transition-colors ${!selectedUploadProject ? 'bg-red-900/20 text-red-400 border border-red-800/30 cursor-not-allowed' : 'bg-[#f59e0b] text-[#020617] hover:bg-[#fbbf24]'}`} >
+                  {selectedUploadProject ? (
+                    <><Upload size={13} /><span>Upload {uploadedFiles.length} File{uploadedFiles.length > 1 ? 's' : ''} to Client Portal</span></>
+                  ) : (
+                    <><AlertCircle size={13} /><span>Select a Project First</span></>
+                  )}
+                </button>
+              </div>}
+          </div>
+
+          {/* Uploaded Documents History */}
+          <div className="bg-[#0f172a] border border-amber-500/10 p-6">
+            <h2 className="text-white font-semibold mb-5" >Uploaded Documents History</h2>
+            {documents && documents.filter((d: any) => selectedUploadProject ? d.projectId === selectedUploadProject : assignedProjects.some(p => p.id === d.projectId)).length > 0 ? (
+              <div className="space-y-3">
+                {documents
+                  .filter((d: any) => selectedUploadProject ? d.projectId === selectedUploadProject : assignedProjects.some(p => p.id === d.projectId))
+                  .map((doc: any, i: number) => (
+                  <div key={`history-${i}`} className="flex items-center justify-between p-4 bg-[#020617] border border-amber-500/10 hover:border-[#f59e0b]/30 transition-colors group">
+                    <div className="flex items-center gap-4">
+                      <div className="w-10 h-10 bg-[#0f172a] border border-amber-500/10 flex items-center justify-center shrink-0">
+                        <FileText size={16} className="text-[#f59e0b]" />
+                      </div>
+                      <div>
+                        <p className="text-white text-sm font-medium" >{doc.name}</p>
+                        <p className="text-white/40 text-xs mt-1" >
+                          {doc.size} • Uploaded on {doc.date}
+                          {!selectedUploadProject && doc.projectId && ` • ${projects.find((p: any) => p.id === doc.projectId)?.name || 'Unknown Project'}`}
+                        </p>
+                      </div>
+                    </div>
+                    <div className="flex items-center gap-3">
+                      <span className="px-2.5 py-1 bg-[#1e293b] text-white/60 text-[10px] uppercase tracking-wider rounded">{doc.type}</span>
                       <button onClick={() => toast.success(`Downloading ${doc.name}...`)} className="w-8 h-8 flex items-center justify-center bg-[#020617] border border-amber-500/10 text-white/40 hover:text-[#f59e0b] hover:border-[#f59e0b]/30 transition-colors" title="Download">
                         <Download size={14} />
                       </button>
@@ -3121,7 +3043,7 @@ export const HubAdminPage: React.FC<HubPageProps> = ({
   }, [currentUser, onNavigate]);
 
   const { data: users, refetch: refetchUsers } = useApiData('users');
-  const { data: documents, setData: setDocuments, updateItem: updateDocument, deleteItem: deleteDocument } = useApiData('documents');
+  const { data: documents, setData: setDocuments } = useApiData('documents');
   const { data: projects, setData: setProjects } = useApiData('projects');
   const { data: invoices, createItem: createInvoice } = useApiData('invoices');
   const [adminUsers, setAdminUsers] = useState<AdminUser[]>(initialAdminUsers);
