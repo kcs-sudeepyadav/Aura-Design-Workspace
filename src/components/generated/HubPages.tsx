@@ -2161,6 +2161,7 @@ export const HubManagerPage: React.FC<HubPageProps> = ({
     imageUrl: ''
   });
   const [uploadedFiles, setUploadedFiles] = useState<File[]>([]);
+  const [isDragging, setIsDragging] = useState(false);
   const { data: documents, setData: setDocuments } = useApiData('documents');
   const { data: projects, setData: setProjects } = useApiData('projects');
   const [selectedUploadProject, setSelectedUploadProject] = useState<string>('');
@@ -2283,6 +2284,29 @@ export const HubManagerPage: React.FC<HubPageProps> = ({
   const handleFileSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
     const files = Array.from(e.target.files ?? []);
     setUploadedFiles(prev => [...prev, ...files]);
+  };
+  
+  const handleDragOver = (e: React.DragEvent) => {
+    e.preventDefault();
+    setIsDragging(true);
+  };
+  
+  const handleDragLeave = (e: React.DragEvent) => {
+    e.preventDefault();
+    setIsDragging(false);
+  };
+  
+  const handleDrop = (e: React.DragEvent) => {
+    e.preventDefault();
+    setIsDragging(false);
+    if (!selectedUploadProject) {
+      alert("Please select a project before dropping files.");
+      return;
+    }
+    const files = Array.from(e.dataTransfer.files);
+    if (files.length > 0) {
+      setUploadedFiles(prev => [...prev, ...files]);
+    }
   };
   
   const handleUploadSubmit = async () => {
@@ -2895,7 +2919,7 @@ export const HubManagerPage: React.FC<HubPageProps> = ({
                 </div>
               </div>
             ) : (
-              <button onClick={() => fileInputRef.current?.click()} className="w-full border-2 border-dashed border-amber-500/10 p-14 hover:border-[#f59e0b]/30 transition-colors flex flex-col items-center gap-3 group">
+              <button onClick={() => fileInputRef.current?.click()} onDragOver={handleDragOver} onDragLeave={handleDragLeave} onDrop={handleDrop} className={`w-full border-2 border-dashed p-14 flex flex-col items-center gap-3 group transition-colors ${isDragging ? 'border-[#f59e0b] bg-[#f59e0b]/5' : 'border-amber-500/10 hover:border-[#f59e0b]/30'}`}>
                 <Upload size={32} className="text-white/20 group-hover:text-[#f59e0b]/50 transition-colors" />
                 <div className="text-center">
                   <p className="text-white font-medium mb-1" >Drop files here or click to browse</p>
